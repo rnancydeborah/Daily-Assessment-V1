@@ -1,0 +1,2903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin — Daily Question</title>
+<base target="_top">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" id="mathjax-script" async></script>
+<style>
+  @media(max-width:600px){
+
+  .content{
+    padding:14px;
+  }
+
+  .topbar{
+    padding:12px 14px;
+  }
+
+  .topbar h2{
+    font-size:17px;
+  }
+
+  .top-actions .muted{
+    display:none;
+  }
+
+  .grid.cols-4{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .stat-card{
+    padding:14px 12px;
+  }
+
+  .stat-card .num{
+    font-size:23px;
+  }
+
+  .card{
+    padding:16px;
+    border-radius:14px;
+  }
+
+  .row,
+  .row3{
+    grid-template-columns:1fr;
+    gap:0;
+  }
+
+  .table-wrap{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  table{
+    min-width:650px;
+  }
+
+  th,
+  td{
+    white-space:nowrap;
+    padding:9px 8px;
+  }
+
+  .toolbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  .toolbar .btn{
+    width:100%;
+  }
+
+  .pill{
+    flex-wrap:wrap;
+  }
+
+  .modal-bg{
+    padding:10px;
+  }
+
+  .modal{
+    padding:20px 16px;
+    max-height:92vh;
+  }
+
+  .toast{
+    left:14px;
+    right:14px;
+    bottom:14px;
+    max-width:none;
+  }
+
+}
+  :root{
+    --purple:#7C3AED; --purple-dark:#5B21B6; --pink:#DB2777; --pink-light:#F472B6;
+    --grad: linear-gradient(135deg,#7C3AED 0%,#DB2777 100%);
+    --bg:#F7F3FF; --card:#FFFFFF; --text:#1E1533; --muted:#6B6280; --border:#E9DFFB;
+    --shadow: 0 6px 24px rgba(124,58,237,0.1); --radius:16px;
+  }
+  [data-theme="dark"]{
+    --bg:#120E1F; --card:#1C1730; --text:#F1ECFF; --muted:#A79CC9; --border:#332A55;
+    --shadow: 0 6px 24px rgba(0,0,0,0.4);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif; background:var(--bg); color:var(--text); transition:.3s;}
+  a{color:inherit;}
+  .app{ display:flex; min-height:100vh; }
+
+  /* Sidebar */
+  .sidebar{ width:230px; background:var(--card); border-right:1px solid var(--border); padding:20px 14px; position:sticky; top:0; height:100vh; display:flex; flex-direction:column; gap:4px; transition:.3s; z-index:20;}
+  .logo{ display:flex; align-items:center; gap:10px; padding:8px 10px 20px; font-weight:800; font-size:16px; }
+  .logo span{ background:var(--grad); width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px;}
+  .nav-item{ padding:12px 14px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:600; color:var(--muted); display:flex; align-items:center; gap:10px; }
+  .nav-item:hover{ background:var(--bg); }
+  .nav-item.active{ background:var(--grad); color:#fff; }
+  .sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--border); }
+
+  /* Topbar */
+  .main{ flex:1; min-width:0; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:16px 24px; background:var(--card); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10;}
+  .topbar h2{ font-size:18px; }
+  .menu-btn{ display:none; background:none; border:none; font-size:22px; cursor:pointer; color:var(--text); }
+  .top-actions{ display:flex; gap:10px; align-items:center; }
+  .theme-toggle, .logout-btn{ background:var(--bg); border:1px solid var(--border); border-radius:50px; padding:8px 14px; cursor:pointer; font-size:13px; color:var(--text); }
+  .logout-btn{ color:#DB2777; font-weight:600; }
+
+  .content{ padding:24px; max-width:1300px; margin:0 auto; }
+  .page{ display:none; }
+  .page.active{ display:block; animation:fade .3s; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  /* Cards */
+  .grid{ display:grid; gap:16px; }
+  .grid.cols-4{ grid-template-columns:repeat(4,1fr); }
+  .grid.cols-2{ grid-template-columns:1fr 1fr; }
+  .stat-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); }
+  .stat-card .num{ font-size:28px; font-weight:800; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .stat-card .label{ font-size:12px; color:var(--muted); font-weight:600; margin-top:4px; }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); margin-bottom:18px; }
+  .card h3{ font-size:15px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+  .field{ margin-bottom:14px; }
+  .field label{ font-size:12px; font-weight:600; color:var(--muted); display:block; margin-bottom:6px; }
+  .field input, .field select, .field textarea{
+    width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--border);
+    background:var(--bg); color:var(--text); font-size:13.5px; outline:none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--purple); }
+  .field textarea{ font-family:inherit; resize:vertical; }
+  .row{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .row3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+
+  .format-help{ background:var(--bg); border:1px dashed var(--border); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--muted); margin-bottom:12px; line-height:1.6; }
+  .format-help code{ background:var(--card); border:1px solid var(--border); padding:1px 6px; border-radius:5px; color:var(--purple); }
+  .toolbar{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .preview-box{ border:1.5px solid var(--border); border-radius:12px; padding:16px; margin:14px 0; background:var(--bg); }
+  .preview-label{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px; }
+  .preview-content .pq-text{ font-weight:700; font-size:15px; margin-bottom:12px; }
+  .preview-content .pq-opt{ padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; margin-bottom:7px; font-size:13.5px; background:var(--card); }
+  .preview-content img{ max-width:100%; border-radius:8px; margin-bottom:10px; }
+  .rich-table{ border-collapse:collapse; margin:8px 0; font-size:13px; }
+  .rich-table th, .rich-table td{ border:1px solid var(--border); padding:6px 10px; }
+  .rich-table th{ background:var(--card); }
+  .btn{ padding:11px 20px; border:none; border-radius:10px; background:var(--grad); color:#fff; font-weight:700; font-size:13.5px; cursor:pointer; }
+  .btn.outline{ background:none; border:1.5px solid var(--purple); color:var(--purple); }
+  .btn.small{ padding:7px 12px; font-size:12px; }
+  .btn.danger{ background:#DC2626; }
+  .btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{ text-align:left; padding:10px; background:var(--bg); color:var(--muted); font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; }
+  td{ padding:10px; border-bottom:1px solid var(--border); }
+  .table-wrap{ overflow-x:auto; }
+  .badge{ padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge.gold{ background:#FEF3C7; color:#92400E; }
+  .badge.silver{ background:#E5E7EB; color:#374151; }
+  .badge.bronze{ background:#FED7AA; color:#9A3412; }
+  .badge.rank{ background:var(--bg); color:var(--muted); }
+  .pill{ display:inline-flex; gap:6px; }
+  .toast{ position:fixed; bottom:20px; right:20px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); padding:14px 18px; border-radius:12px; font-size:13px; z-index:100; display:none; max-width:320px;}
+  .toast.show{ display:block; animation:fade .3s; }
+  .toast.error{ border-left:4px solid #DC2626; }
+  .toast.success{ border-left:4px solid #16A34A; }
+  .tabs2{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .tabs2 .t{ padding:8px 16px; border-radius:20px; background:var(--bg); border:1px solid var(--border); font-size:12.5px; font-weight:600; cursor:pointer; color:var(--muted); }
+  .tabs2 .t.active{ background:var(--grad); color:#fff; border-color:transparent; }
+  .muted{ color:var(--muted); font-size:12.5px; }
+  .flex-between{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; z-index:15; }
+  .overlay.show{ display:block; }
+  .modal-bg{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:300; padding:20px;}
+  .modal-bg.show{ display:flex; }
+  .modal{ background:var(--card); border-radius:18px; padding:26px; max-width:480px; width:100%; box-shadow:var(--shadow); max-height:85vh; overflow-y:auto; }
+
+  @media(max-width:900px){
+    .grid.cols-4{ grid-template-columns:1fr 1fr; }
+    .grid.cols-2, .row, .row3{ grid-template-columns:1fr; }
+    .sidebar{ position:fixed; left:-240px; height:100vh; box-shadow:0 0 30px rgba(0,0,0,.2); }
+    .sidebar.open{ left:0; }
+    .menu-btn{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+
+<div class="modal-bg" id="qPreviewModal">
+  <div class="modal">
+    <h3 style="margin-bottom:14px;">👁 Question Preview (student view)</h3>
+    <div class="preview-content" id="qPreviewContent"></div>
+    <button class="btn outline" style="margin-top:16px;width:100%;" onclick="closeQPreview()">Close</button>
+  </div>
+</div>
+
+<div class="app">
+  <div class="sidebar" id="sidebar">
+    <div class="logo"><span>Q</span> Admin Panel</div>
+    <div class="nav-item active" data-page="dashboard" onclick="goPage('dashboard')">📊 Dashboard</div>
+    <div class="nav-item" data-page="students" onclick="goPage('students')">🎓 Students</div>
+    <div class="nav-item" data-page="questions" onclick="goPage('questions')">❓ Questions</div>
+    <div class="nav-item" data-page="reports" onclick="goPage('reports')">📈 Reports</div>
+    <div class="sidebar-foot">
+      <div class="nav-item" onclick="logout()">🚪 Logout</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="menu-btn" onclick="toggleSidebar(true)">☰</button>
+        <h2 id="pageTitle">Dashboard</h2>
+      </div>
+      <div class="top-actions">
+        <button class="theme-toggle" id="themeToggle">🌙 Dark</button>
+        <span class="muted" id="adminName"></span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="grid cols-4" id="statCards">
+          <div class="stat-card"><div class="num" id="s1">–</div><div class="label">Total Students</div></div>
+          <div class="stat-card"><div class="num" id="s2">–</div><div class="label">Total Questions</div></div>
+          <div class="stat-card"><div class="num" id="s3">–</div><div class="label">Today's Questions</div></div>
+          <div class="stat-card"><div class="num" id="s4">–</div><div class="label">Attempted Today</div></div>
+        </div>
+        <div class="card" style="margin-top:18px;">
+          <h3>🏆 Today's Live Leaderboard (Top 5)</h3>
+          <div class="table-wrap"><table id="quickLb"><thead><tr><th>Rank</th><th>Roll No</th><th>Name</th><th>Marks</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="page" id="page-students">
+        <div class="card">
+          <h3>➕ Add Student</h3>
+          <div class="row3">
+            <div class="field"><label>Roll No</label><input id="addRoll" placeholder="21CS045"></div>
+            <div class="field"><label>Name</label><input id="addName" placeholder="Student name"></div>
+            <div class="field"><label>Department</label><input id="addDept" placeholder="CSE"></div>
+          </div>
+          <div class="row3">
+            <div class="field"><label>Year</label><input id="addYear" placeholder="e.g. 2"></div>
+            <div class="field"><label>Section</label><input id="addSection" placeholder="A"></div>
+            <div class="field" style="display:flex;align-items:flex-end;"><button class="btn" style="width:100%" onclick="addStudent()">Add Student</button></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📥 Bulk Add (paste CSV: RollNo,Name,Dept,Year,Section — one per line)</h3>
+          <div class="field"><textarea id="bulkText" rows="5" placeholder="21CS045,John Doe,CSE,2,A
+21CS046,Jane Roe,CSE,2,A"></textarea></div>
+          <button class="btn outline" onclick="bulkAdd()">Import Students</button>
+        </div>
+
+        <div class="card">
+          <div class="flex-between">
+
+  <h3>👥 All Students</h3>
+
+</div>
+
+
+<div class="row3">
+
+  <div class="field">
+
+    <label>Department</label>
+
+    <select
+      id="filterDept"
+      onchange="renderStudents()"
+    >
+
+      <option value="">
+        All Departments
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Year</label>
+
+    <select
+      id="filterYear"
+      onchange="renderStudents()"
+    >
+
+      <option value="">
+        All Years
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Section</label>
+
+    <select
+      id="filterSection"
+      onchange="renderStudents()"
+    >
+
+      <option value="">
+        All Sections
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Roll No</th><th>Name</th><th>Dept</th><th>Year</th><th>Sec</th><th>Password</th><th>Actions</th></tr></thead>
+            <tbody id="studentsBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- QUESTIONS -->
+      <div class="page" id="page-questions">
+        <div class="card">
+          <h3>➕ Add Question</h3>
+          <div class="row">
+
+  <div class="field">
+
+    <label>Department *</label>
+
+    <select id="qDept">
+      <option value="">
+        Select Department
+      </option>
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Year *</label>
+
+    <select id="qYear">
+      <option value="">
+        Select Year
+      </option>
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Date *</label>
+
+    <input
+      type="date"
+      id="qDate"
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Time Limit *</label>
+
+    <select id="qTime">
+
+      <option value="">
+        Select Time Limit
+      </option>
+
+      <option value="10">
+        10 seconds
+      </option>
+
+      <option value="20">
+        20 seconds
+      </option>
+
+      <option value="30">
+        30 seconds
+      </option>
+
+      <option value="60">
+        60 seconds
+      </option>
+
+      <option value="120">
+        120 seconds
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
+
+          <div class="format-help">
+            💡 You can type <b>equations</b> like <code>$x^2+y^2=z^2$</code> or <code>$$\frac{a}{b}$$</code>, and <b>tables</b> using the pipe format below. Use the buttons to insert a starter template into the field you last clicked.
+          </div>
+          <div class="toolbar">
+            <button type="button" class="btn small outline" onclick="insertSnippet('eq')">∑ Insert Equation</button>
+            <button type="button" class="btn small outline" onclick="insertSnippet('table')">▦ Insert Table</button>
+            <button type="button" class="btn small outline" onclick="renderPreview()">👁 Preview</button>
+          </div>
+
+          <div class="field"><label>Question</label><textarea id="qText" rows="3" placeholder="Type the question... e.g. Solve: $x^2 - 5x + 6 = 0$" onfocus="lastFocused='qText'"></textarea></div>
+          <div class="field"><label>Image Link (optional)</label><input id="qImage" placeholder="https://..." onfocus="lastFocused='qImage'"></div>
+          <div class="row">
+            <div class="field"><label>Option A</label><textarea rows="2" id="qA" onfocus="lastFocused='qA'"></textarea></div>
+            <div class="field"><label>Option B</label><textarea rows="2" id="qB" onfocus="lastFocused='qB'"></textarea></div>
+            <div class="field"><label>Option C</label><textarea rows="2" id="qC" onfocus="lastFocused='qC'"></textarea></div>
+            <div class="field"><label>Option D</label><textarea rows="2" id="qD" onfocus="lastFocused='qD'"></textarea></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Correct Option</label>
+              <select id="qCorrect"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+            </div>
+            <div class="field"><label>Marks</label><input type="number" id="qMarks" value="1" min="1"></div>
+          </div>
+
+          <div class="preview-box" id="previewBox" style="display:none;">
+            <div class="preview-label">👁 Live Preview (this is what students will see)</div>
+            <div class="preview-content" id="previewContent"></div>
+          </div>
+
+          <button class="btn" onclick="addQuestion()">Add Question</button>
+        </div>
+
+        <div class="card">
+          <div class="flex-between">
+
+  <h3>📋 All Questions</h3>
+
+</div>
+
+<div class="row3">
+
+  <div class="field">
+
+    <label>Date</label>
+
+    <input
+      type="date"
+      id="qFilterDate"
+      onchange="renderQuestions()"
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Department</label>
+
+    <select
+      id="qFilterDept"
+      onchange="renderQuestions()"
+    >
+
+      <option value="">
+        All Departments
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Year</label>
+
+    <select
+      id="qFilterYear"
+      onchange="renderQuestions()"
+    >
+
+      <option value="">
+        All Years
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
+
+
+<div class="pill" style="margin-bottom:14px;">
+
+  <button
+    class="btn small outline"
+    onclick="bulkReveal(true)"
+  >
+    🔓 Reveal Questions
+  </button>
+
+
+  <button
+    class="btn small outline"
+    onclick="bulkReveal(false)"
+  >
+    🔒 Hide Questions
+  </button>
+
+</div>
+          <p class="muted" style="margin-bottom:12px;">Answer keys reveal automatically to students the day after a question was asked. Use 🔓/🔒 to reveal or hide earlier.</p>
+          <div class="table-wrap"><table>
+            <thead>
+  <tr>
+    <th>Dept</th>
+    <th>Year</th>
+    <th>Date</th>
+    <th>Question</th>
+    <th>Correct</th>
+    <th>Time</th>
+    <th>Marks</th>
+    <th>Answer Key</th>
+    <th>Actions</th>
+  </tr>
+</thead>
+            <tbody id="questionsBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="page" id="page-reports">
+        <div class="card">
+          <h3>🏆 Leaderboard</h3>
+          <div class="tabs2" id="lbPeriodTabs">
+            <div class="t active" data-p="day" onclick="setLbPeriod('day')">Today</div>
+            <div class="t" data-p="week" onclick="setLbPeriod('week')">This Week</div>
+            <div class="t" data-p="month" onclick="setLbPeriod('month')">This Month</div>
+            <div class="t" data-p="year" onclick="setLbPeriod('year')">This Year</div>
+            <div class="t" data-p="all" onclick="setLbPeriod('all')">All Time</div>
+          </div>
+          <div class="row3">
+
+  <div class="field">
+
+    <label>Department</label>
+
+    <select
+      id="lbDept"
+      onchange="renderLeaderboard()"
+    >
+
+      <option value="">
+        All Departments
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Year</label>
+
+    <select
+      id="lbYear"
+      onchange="renderLeaderboard()"
+    >
+
+      <option value="">
+        All Years
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Section</label>
+
+    <select
+      id="lbSection"
+      onchange="renderLeaderboard()"
+    >
+
+      <option value="">
+        All Sections
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
+          <div class="flex-between" style="margin-bottom:10px;">
+            <span class="muted">Ranked by total marks</span>
+            <button class="btn small outline" onclick="downloadToppers()">⬇ Download Topper PDF</button>
+          </div>
+
+          <div class="row3" style="margin-top:15px;">
+
+  <div class="field">
+    <label>From Date</label>
+    <input
+      type="date"
+      id="lbFromDate">
+  </div>
+
+  <div class="field">
+    <label>To Date</label>
+    <input
+      type="date"
+      id="lbToDate">
+  </div>
+
+  <div class="field"
+       style="display:flex;align-items:flex-end;">
+
+    <button
+      class="btn"
+      style="width:100%;"
+      onclick="downloadDateRangeLeaderboard()">
+
+      ⬇ Download Date Range PDF
+
+    </button>
+
+  </div>
+
+</div>
+
+          <div class="table-wrap"><table>
+            <thead><tr><th>Rank</th><th>Roll No</th><th>Name</th><th>Dept</th><th>Year</th><th>Sec</th><th>Marks</th><th>Correct/Attempted</th></tr></thead>
+            <tbody id="lbBody"></tbody>
+          </table></div>
+        </div>
+
+        <div class="card">
+          <h3>📄 Not-Attended Report (PDF)</h3>
+          <div class="row">
+
+  <div class="field">
+
+    <label>Date</label>
+
+    <input
+      type="date"
+      id="absDate"
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Department</label>
+
+    <select id="absDept">
+
+      <option value="">
+        All Departments
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Year</label>
+
+    <select id="absYear">
+
+      <option value="">
+        All Years
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Section</label>
+
+    <select id="absSection">
+
+      <option value="">
+        All Sections
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
+          <button class="btn" onclick="downloadAbsentees()">⬇ Generate & Download PDF</button>
+        </div>
+
+        <div class="card">
+          <h3>🔍 Individual Student Report</h3>
+          <div class="row">
+            <div class="field"><label>Roll No</label><input id="repRoll" placeholder="21CS045"></div>
+            <div class="field"><label>Period</label>
+              <select id="repPeriod"><option value="day">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="year">This Year</option><option value="all" selected>All Time</option></select>
+            </div>
+          </div>
+          <button class="btn outline" onclick="lookupStudent()">Search</button>
+          <div id="repResult" style="margin-top:16px;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ⚠️ PASTE YOUR DEPLOYED WEB APP URL BELOW (Deploy → Manage deployments → copy "Web app" URL)
+    const BASE_URL = "https://script.google.com/macros/s/AKfycbzDYz8f9zfcQT2ab7XljdvluqjKM1N4LjtmpMsM3uJjhOyNev0BfT3-aqoqpNLLBvho3Q/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzDYz8f9zfcQT2ab7XljdvluqjKM1N4LjtmpMsM3uJjhOyNev0BfT3-aqoqpNLLBvho3Q/exec";
+  let allStudents = [], allQuestions = [], distinctYS = {years:[], sections:[]}, lbPeriod = 'day', lastFocused = 'qText';
+
+  // ---- Guard ----
+  const adminSession = JSON.parse(sessionStorage.getItem('dqa_admin') || 'null');
+  if (
+  !adminSession ||
+  !adminSession.success
+) {
+
+  window.location.replace(
+    "index.html"
+  );
+
+} else {
+
+  document
+    .getElementById('adminName')
+    .textContent =
+
+    '👤 ' +
+    adminSession.username;
+
+}
+
+  // ---- Theme ----
+  const themeToggle = document.getElementById('themeToggle');
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    themeToggle.textContent = t === 'dark' ? '☀️ Light' : '🌙 Dark';
+    localStorage.setItem('dqa_theme', t);
+  }
+  applyTheme(localStorage.getItem('dqa_theme') || 'light');
+  themeToggle.onclick = () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+
+  function toggleSidebar(open){
+    document.getElementById('sidebar').classList.toggle('open', open);
+    document.getElementById('overlay').classList.toggle('show', open);
+  }
+
+  function logout() {
+
+  sessionStorage.removeItem(
+    'dqa_admin'
+  );
+
+  window.location.replace(
+    "index.html"
+  );
+
+}
+
+  function toast(msg, type){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + (type||'success');
+    setTimeout(()=> t.className='toast', 3000);
+  }
+
+  function goPage(p){
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page===p));
+    document.querySelectorAll('.page').forEach(pg => pg.classList.toggle('active', pg.id==='page-'+p));
+    document.getElementById('pageTitle').textContent = p.charAt(0).toUpperCase()+p.slice(1);
+    toggleSidebar(false);
+    if(p==='reports') renderLeaderboard();
+  }
+
+  // ---- Init ----
+  function init(){
+    document.getElementById('qDate').valueAsDate = new Date();
+    document.getElementById('absDate').valueAsDate = new Date();
+    loadDashboard();
+    loadStudents();
+    loadQuestions();
+    loadFilters();
+  }
+
+  async function loadDashboard() {
+
+    try {
+
+        // Dashboard Statistics
+        let response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "getDashboardStats"
+            })
+        });
+
+        let stats = await response.json();
+
+        document.getElementById("s1").textContent = stats.totalStudents;
+        document.getElementById("s2").textContent = stats.totalQuestions;
+        document.getElementById("s3").textContent = stats.todayQuestions;
+        document.getElementById("s4").textContent = stats.attemptedToday;
+
+
+        /// Today's LIVE Leaderboard — Admin Only
+response = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+        action: "getAdminLiveLeaderboard",
+        dept: "",
+        year: "",
+        section: ""
+    })
+});
+        const list = await response.json();
+
+        const tbody = document.querySelector("#quickLb tbody");
+
+        tbody.innerHTML = list.length
+            ? list.slice(0, 5).map(s => `
+                <tr>
+                    <td>${rankBadge(s.rank)}</td>
+                    <td>${s.rollNo}</td>
+                    <td>${s.name}</td>
+                    <td>${s.marks}</td>
+                </tr>
+            `).join("")
+            : `
+                <tr>
+                    <td colspan="4" class="muted">
+                        No data yet
+                    </td>
+                </tr>
+            `;
+
+    } catch (err) {
+
+        toast(err.message, "error");
+
+    }
+
+}
+
+  function rankBadge(r){
+    if(r===1) return '<span class="badge gold">🥇 1</span>';
+    if(r===2) return '<span class="badge silver">🥈 2</span>';
+    if(r===3) return '<span class="badge bronze">🥉 3</span>';
+    return '<span class="badge rank">#'+r+'</span>';
+  }
+
+  // ---- Students ----
+  async function loadStudents() {
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "getAllStudents"
+            })
+        });
+
+        const list = await response.json();
+
+        allStudents = list;
+
+        renderStudents();
+
+        loadDepartmentFilter();
+
+    } catch (err) {
+
+        toast(err.message, "error");
+
+    }
+
+}
+  function renderStudents() {
+
+  const dept =
+    document
+      .getElementById("filterDept")
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const year =
+    document
+      .getElementById("filterYear")
+      .value
+      .trim();
+
+
+  const section =
+    document
+      .getElementById("filterSection")
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  let list =
+    allStudents;
+
+
+  if (dept) {
+
+    list =
+      list.filter(s =>
+
+        String(s.dept || "")
+          .trim()
+          .toUpperCase() === dept
+
+      );
+
+  }
+
+
+  if (year) {
+
+    list =
+      list.filter(s =>
+
+        String(s.year || "")
+          .trim() === year
+
+      );
+
+  }
+
+
+  if (section) {
+
+    list =
+      list.filter(s =>
+
+        String(s.section || "")
+          .trim()
+          .toUpperCase() === section
+
+      );
+
+  }
+
+
+  document
+    .getElementById("studentsBody")
+    .innerHTML =
+
+    list.map(s => `
+
+      <tr>
+
+        <td>
+          ${s.rollNo}
+        </td>
+
+        <td>
+          ${s.name}
+        </td>
+
+        <td>
+          ${s.dept}
+        </td>
+
+        <td>
+          ${s.year}
+        </td>
+
+        <td>
+          ${s.section}
+        </td>
+
+        <td>
+          <code>${s.password}</code>
+        </td>
+
+        <td class="pill">
+
+          <button
+            class="btn small outline"
+            onclick="resetPass('${s.rollNo}')"
+          >
+            Reset
+          </button>
+
+          <button
+            class="btn small danger"
+            onclick="removeStudent('${s.rollNo}')"
+          >
+            Del
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("")
+
+    ||
+
+    `
+
+      <tr>
+
+        <td
+          colspan="7"
+          class="muted"
+        >
+          No students found
+        </td>
+
+      </tr>
+
+    `;
+
+}
+  async function addStudent() {
+
+    const data = {
+        rollNo: document.getElementById("addRoll").value.trim(),
+        name: document.getElementById("addName").value.trim(),
+        dept: document.getElementById("addDept").value.trim(),
+        year: document.getElementById("addYear").value.trim(),
+        section: document.getElementById("addSection").value.trim()
+    };
+
+    if (
+    !data.rollNo ||
+    !data.name ||
+    !data.dept ||
+    !data.year ||
+    !data.section
+) {
+
+    toast(
+        "All fields are mandatory. Fill Roll No, Name, Department, Year and Section.",
+        "error"
+    );
+
+    return;
+}
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "addStudent",
+                data: data
+            })
+        });
+
+        const res = await response.json();
+
+        if (res.success) {
+
+            toast("Student added. Password: " + res.password);
+
+            document.getElementById("addRoll").value = "";
+            document.getElementById("addName").value = "";
+            document.getElementById("addDept").value = "";
+            document.getElementById("addYear").value = "";
+            document.getElementById("addSection").value = "";
+
+            await loadStudents();
+            await loadFilters();
+
+        } else {
+
+            toast(res.message, "error");
+
+        }
+
+    } catch (err) {
+
+        toast(err.message, "error");
+
+    }
+
+}
+  async function bulkAdd() {
+
+    const lines = document.getElementById("bulkText")
+        .value
+        .split("\n")
+        .map(l => l.trim())
+        .filter(Boolean);
+
+    const list = lines.map(line => {
+
+        const [rollNo, name, dept, year, section] =
+            line.split(",").map(x => x && x.trim());
+
+        return {
+            rollNo,
+            name,
+            dept,
+            year,
+            section
+        };
+
+    });
+
+    if (!list.length) {
+        toast("Paste at least one row", "error");
+        return;
+    }
+
+    // Validate exact CSV column count
+const invalidColumnRow = lines.findIndex(line =>
+    line.split(",").length !== 5
+);
+
+if (invalidColumnRow !== -1) {
+
+    toast(
+        `Row ${invalidColumnRow + 1}: Exactly 5 fields required — RollNo, Name, Dept, Year, Section`,
+        "error"
+    );
+
+    return;
+}
+
+
+// Validate all fields
+const invalidRow = list.findIndex(student =>
+    !student.rollNo ||
+    !student.name ||
+    !student.dept ||
+    !student.year ||
+    !student.section
+);
+
+if (invalidRow !== -1) {
+
+    toast(
+        `Row ${invalidRow + 1}: All fields are mandatory`,
+        "error"
+    );
+
+    return;
+}
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "bulkAddStudents",
+                students: list
+            })
+        });
+
+        const results = await response.json();
+
+        const successCount = results.filter(r => r.success).length;
+
+        toast(`Imported ${successCount}/${results.length} students`);
+
+        document.getElementById("bulkText").value = "";
+
+        await loadStudents();
+        await loadFilters();
+
+    } catch (err) {
+
+        toast(err.message, "error");
+
+    }
+
+}
+  async function resetPass(roll) {
+
+    if (!confirm(`Reset password for ${roll}?`)) return;
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "resetStudentPassword",
+                rollNo: roll
+            })
+        });
+
+        const res = await response.json();
+
+        if (res.success) {
+
+            toast("New Password: " + res.password);
+
+            await loadStudents();
+
+        } else {
+
+            toast(res.message || "Failed to reset password", "error");
+
+        }
+
+    } catch (err) {
+
+        toast(err.message, "error");
+
+    }
+
+}
+  async function removeStudent(roll) {
+
+    if (!confirm(`Delete student ${roll}?`)) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "deleteStudent",
+                rollNo: roll
+            })
+        });
+
+        const res = await response.json();
+
+        if (res.success) {
+
+            toast("Student deleted successfully");
+
+            await loadStudents();
+            await loadFilters();
+            await loadDashboard();
+
+        } else {
+
+            toast(res.message || "Failed to delete student", "error");
+
+        }
+
+    } catch (err) {
+
+        toast(err.message, "error");
+
+    }
+
+}
+
+function loadDepartmentFilter() {
+
+    const departments = [
+        ...new Set(
+            allStudents
+                .map(student =>
+                    String(student.dept || "")
+                        .trim()
+                        .toUpperCase()
+                )
+                .filter(Boolean)
+        )
+    ].sort();
+
+
+    const years = [
+        ...new Set(
+            allStudents
+                .map(student =>
+                    String(student.year || "")
+                        .trim()
+                )
+                .filter(Boolean)
+        )
+    ].sort(
+        (a, b) =>
+            Number(a) - Number(b)
+    );
+
+
+    const deptSelect =
+        document.getElementById("qDept");
+
+
+    const yearSelect =
+        document.getElementById("qYear");
+
+
+    if (deptSelect) {
+
+        deptSelect.innerHTML = `
+
+            <option value="">
+                Select Department
+            </option>
+
+            ${departments.map(dept => `
+
+                <option value="${dept}">
+                    ${dept}
+                </option>
+
+            `).join("")}
+
+        `;
+
+    }
+
+
+    if (yearSelect) {
+
+        yearSelect.innerHTML = `
+
+            <option value="">
+                Select Year
+            </option>
+
+            ${years.map(year => `
+
+                <option value="${year}">
+                    Year ${year}
+                </option>
+
+            `).join("")}
+
+        `;
+
+    }
+
+}
+
+async function loadFilters() {
+
+  try {
+
+    const response = await fetch(API_URL, {
+
+      method: "POST",
+
+      body: JSON.stringify({
+
+        action:
+          "getDistinctYearsSections"
+
+      })
+
+    });
+
+
+    const res =
+      await response.json();
+
+
+    distinctYS = res;
+
+
+    const fillSelect = (
+      id,
+      arr
+    ) => {
+
+      const el =
+        document.getElementById(id);
+
+
+      if (!el) {
+        return;
+      }
+
+
+      const first =
+        el.options.length
+
+          ? el.options[0].outerHTML
+
+          : "";
+
+
+      el.innerHTML =
+
+        first +
+
+        arr.map(v => `
+
+          <option value="${v}">
+            ${v}
+          </option>
+
+        `).join("");
+
+    };
+
+
+    [
+      "filterYear",
+      "lbYear",
+      "absYear",
+      "qFilterYear"
+    ].forEach(id =>
+
+      fillSelect(
+        id,
+        res.years || []
+      )
+
+    );
+
+
+    [
+      "filterSection",
+      "lbSection",
+      "absSection"
+    ].forEach(id =>
+
+      fillSelect(
+        id,
+        res.sections || []
+      )
+
+    );
+
+
+    [
+  "filterDept",
+  "qFilterDept",
+  "lbDept",
+  "absDept"
+].forEach(id =>
+
+  fillSelect(
+    id,
+    res.departments || []
+  )
+
+);
+
+
+  } catch (err) {
+
+    toast(
+      err.message,
+      "error"
+    );
+
+  }
+
+}
+  // ---- Questions ----
+  async function loadQuestions() {
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "getAllQuestions"
+            })
+        });
+
+        const list = await response.json();
+
+        allQuestions = list;
+
+        renderQuestions();
+
+    } catch (err) {
+
+        toast(err.message || "Failed to load questions", "error");
+
+    }
+
+}
+function renderQuestions() {
+
+  const fd =
+    document
+      .getElementById("qFilterDate")
+      .value;
+
+
+  const dept =
+    document
+      .getElementById("qFilterDept")
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const year =
+    document
+      .getElementById("qFilterYear")
+      .value
+      .trim();
+
+
+  let list =
+    allQuestions;
+
+
+  if (fd) {
+
+    list =
+      list.filter(q =>
+        q.date === fd
+      );
+
+  }
+
+
+  if (dept) {
+
+    list =
+      list.filter(q =>
+
+        String(q.dept || "")
+          .trim()
+          .toUpperCase() === dept
+
+      );
+
+  }
+
+
+  if (year) {
+
+    list =
+      list.filter(q =>
+
+        String(q.year || "")
+          .trim() === year
+
+      );
+
+  }
+
+
+  document
+    .getElementById("questionsBody")
+    .innerHTML =
+
+    list.map(q => {
+
+
+      const auto =
+        q.revealed &&
+        !q.manualReveal;
+
+
+      let badge;
+
+      let toggleBtn;
+
+
+      if (auto) {
+
+        badge = `
+          <span class="badge gold">
+            🔓 Auto
+          </span>
+        `;
+
+        toggleBtn = "";
+
+
+      } else if (q.revealed) {
+
+        badge = `
+          <span class="badge gold">
+            🔓 Revealed
+          </span>
+        `;
+
+
+        toggleBtn = `
+
+          <button
+            class="btn small outline"
+            onclick="toggleReveal('${q.qid}', false)"
+          >
+            Hide
+          </button>
+
+        `;
+
+
+      } else {
+
+        badge = `
+          <span class="badge rank">
+            🔒 Hidden
+          </span>
+        `;
+
+
+        toggleBtn = `
+
+          <button
+            class="btn small outline"
+            onclick="toggleReveal('${q.qid}', true)"
+          >
+            Reveal
+          </button>
+
+        `;
+
+      }
+
+
+      return `
+
+        <tr>
+
+          <td>
+            <b>${q.dept || "-"}</b>
+          </td>
+
+          <td>
+            <b>${q.year || "-"}</b>
+          </td>
+
+          <td>
+            ${q.date}
+          </td>
+
+          <td>
+
+            ${q.question.substring(0, 45)}
+
+            ${
+              q.question.length > 45
+                ? "..."
+                : ""
+            }
+
+          </td>
+
+          <td>
+            ${q.correct}
+          </td>
+
+          <td>
+            ${q.timeLimit}s
+          </td>
+
+          <td>
+            ${q.marks}
+          </td>
+
+          <td>
+            ${badge}
+          </td>
+
+          <td class="pill">
+
+            <button
+              class="btn small outline"
+              onclick="openQPreviewById('${q.qid}')"
+            >
+              👁
+            </button>
+
+            ${toggleBtn}
+
+            <button
+              class="btn small danger"
+              onclick="removeQuestion('${q.qid}')"
+            >
+              Del
+            </button>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("")
+
+    ||
+
+    `
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="muted"
+        >
+          No questions found
+        </td>
+
+      </tr>
+
+    `;
+
+}
+
+  // ============================================================
+// QUESTION REVEAL
+// ============================================================
+
+async function toggleReveal(qid, revealed) {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "toggleQuestionReveal",
+        qid: qid,
+        revealed: revealed
+      })
+    });
+
+    const res = await response.json();
+
+    if (res.success) {
+      toast(revealed ? "Answer key revealed" : "Answer key hidden");
+      loadQuestions();
+    } else {
+      toast(res.message || "Unable to update reveal status", "error");
+    }
+
+  } catch (err) {
+    console.error("toggleReveal error:", err);
+    toast("Server connection failed", "error");
+  }
+}
+
+
+async function bulkReveal(revealed) {
+
+  const date =
+    document
+      .getElementById("qFilterDate")
+      .value;
+
+
+  const dept =
+    document
+      .getElementById("qFilterDept")
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const year =
+    document
+      .getElementById("qFilterYear")
+      .value
+      .trim();
+
+
+  if (
+    !date ||
+    !dept ||
+    !year
+  ) {
+
+    toast(
+
+      "Select Date, Department and Year first",
+
+      "error"
+
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const response =
+      await fetch(API_URL, {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          action:
+            "setDateReveal",
+
+          date:
+            date,
+
+          dept:
+            dept,
+
+          year:
+            year,
+
+          revealed:
+            revealed
+
+        })
+
+      });
+
+
+    const res =
+      await response.json();
+
+
+    if (
+      res.success === false
+    ) {
+
+      toast(
+
+        res.message ||
+        "Unable to update questions",
+
+        "error"
+
+      );
+
+      return;
+
+    }
+
+
+    toast(
+
+      (
+        revealed
+
+          ? "Revealed "
+
+          : "Hidden "
+      )
+
+      +
+
+      res.count
+
+      +
+
+      " question(s) for "
+
+      +
+
+      dept
+
+      +
+
+      " - Year "
+
+      +
+
+      year
+
+      +
+
+      " - "
+
+      +
+
+      date
+
+    );
+
+
+    await loadQuestions();
+
+
+  } catch (err) {
+
+    console.error(
+
+      "bulkReveal error:",
+
+      err
+
+    );
+
+
+    toast(
+
+      "Server connection failed",
+
+      "error"
+
+    );
+
+  }
+
+}
+
+// ============================================================
+// ADD QUESTION
+// ============================================================
+
+async function addQuestion() {
+
+  const data = {
+
+    dept:
+      document
+        .getElementById("qDept")
+        .value
+        .trim()
+        .toUpperCase(),
+    
+    year:
+  document
+    .getElementById("qYear")
+    .value
+    .trim(),
+
+    date:
+      document
+        .getElementById("qDate")
+        .value,
+
+    question:
+      document
+        .getElementById("qText")
+        .value
+        .trim(),
+
+    imageLink:
+      document
+        .getElementById("qImage")
+        .value
+        .trim(),
+
+    optionA:
+      document
+        .getElementById("qA")
+        .value
+        .trim(),
+
+    optionB:
+      document
+        .getElementById("qB")
+        .value
+        .trim(),
+
+    optionC:
+      document
+        .getElementById("qC")
+        .value
+        .trim(),
+
+    optionD:
+      document
+        .getElementById("qD")
+        .value
+        .trim(),
+
+    correct:
+      document
+        .getElementById("qCorrect")
+        .value,
+
+    timeLimit:
+      Number(
+        document
+          .getElementById("qTime")
+          .value
+      ),
+
+    marks:
+      Number(
+        document
+          .getElementById("qMarks")
+          .value
+      )
+
+  };
+
+
+  if (
+    !data.dept ||
+    !data.year ||
+    !data.date ||
+    !data.question ||
+    !data.optionA ||
+    !data.optionB ||
+    !data.optionC ||
+    !data.optionD ||
+    !data.correct ||
+    !data.timeLimit ||
+    !data.marks
+  ) {
+
+    toast(
+      "All question fields are mandatory.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const response = await fetch(API_URL, {
+
+      method: "POST",
+
+      body: JSON.stringify({
+
+        action: "addQuestion",
+
+        data: data
+
+      })
+
+    });
+
+
+    const res =
+      await response.json();
+
+
+    if (res.success) {
+
+      toast(
+        "Question added for " +
+        data.dept +
+  " - Year " +
+  data.year
+      );
+
+
+      document
+        .getElementById("qText")
+        .value = "";
+
+
+      document
+        .getElementById("qImage")
+        .value = "";
+
+
+      document
+        .getElementById("qA")
+        .value = "";
+
+
+      document
+        .getElementById("qB")
+        .value = "";
+
+
+      document
+        .getElementById("qC")
+        .value = "";
+
+
+      document
+        .getElementById("qD")
+        .value = "";
+
+
+      document
+        .getElementById("qCorrect")
+        .value = "A";
+
+
+      document
+        .getElementById("qTime")
+        .value = "";
+
+
+      document
+        .getElementById("qMarks")
+        .value = "1";
+
+
+      document
+        .getElementById("previewBox")
+        .style
+        .display = "none";
+
+
+      await loadQuestions();
+
+
+    } else {
+
+      toast(
+        res.message ||
+        "Unable to add question",
+        "error"
+      );
+
+    }
+
+
+  } catch (err) {
+
+    console.error(
+      "addQuestion error:",
+      err
+    );
+
+
+    toast(
+      "Server connection failed",
+      "error"
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// DELETE QUESTION
+// ============================================================
+
+async function removeQuestion(qid) {
+
+  if (!confirm("Delete this question?")) {
+    return;
+  }
+
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "deleteQuestion",
+        qid: qid
+      })
+    });
+
+
+    const res = await response.json();
+
+
+    if (res.success) {
+
+      toast("Question deleted");
+
+      loadQuestions();
+
+    } else {
+
+      toast(
+        res.message || "Unable to delete question",
+        "error"
+      );
+
+    }
+
+  } catch (err) {
+
+    console.error("removeQuestion error:", err);
+
+    toast(
+      "Server connection failed",
+      "error"
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// LEADERBOARD
+// ============================================================
+
+async function renderLeaderboard() {
+
+  const dept =
+    document
+      .getElementById("lbDept")
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const year =
+    document
+      .getElementById("lbYear")
+      .value;
+
+
+  const section =
+    document
+      .getElementById("lbSection")
+      .value;
+
+
+  try {
+
+    const response =
+      await fetch(API_URL, {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          action:
+            "getAdminLeaderboard",
+
+          period:
+            lbPeriod,
+
+          dept:
+            dept,
+
+          year:
+            year,
+
+          section:
+            section
+
+        })
+
+      });
+
+
+    const list =
+      await response.json();
+
+
+    document
+      .getElementById("lbBody")
+      .innerHTML =
+
+      Array.isArray(list) &&
+      list.length
+
+        ? list.map(student => `
+
+          <tr>
+
+            <td>
+              ${rankBadge(student.rank)}
+            </td>
+
+            <td>
+              ${student.rollNo}
+            </td>
+
+            <td>
+              ${student.name}
+            </td>
+
+            <td>
+              ${student.dept}
+            </td>
+
+            <td>
+              ${student.year}
+            </td>
+
+            <td>
+              ${student.section}
+            </td>
+
+            <td>
+              <b>${student.marks}</b>
+            </td>
+
+            <td>
+              ${student.correct}/${student.attempted}
+            </td>
+
+          </tr>
+
+        `).join("")
+
+        : `
+
+          <tr>
+
+            <td
+              colspan="8"
+              class="muted"
+            >
+              No data
+            </td>
+
+          </tr>
+
+        `;
+
+
+  } catch (err) {
+
+    console.error(
+
+      "renderLeaderboard error:",
+
+      err
+
+    );
+
+
+    document
+      .getElementById("lbBody")
+      .innerHTML = `
+
+        <tr>
+
+          <td
+            colspan="8"
+            class="muted"
+          >
+            Unable to load leaderboard
+          </td>
+
+        </tr>
+
+      `;
+
+
+    toast(
+
+      "Unable to load leaderboard",
+
+      "error"
+
+    );
+
+  }
+
+}
+
+// ============================================================
+// DOWNLOAD TOPPERS PDF
+// ============================================================
+
+async function downloadToppers() {
+
+  const dept =
+    document
+      .getElementById("lbDept")
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const year =
+    document
+      .getElementById("lbYear")
+      .value;
+
+
+  const section =
+    document
+      .getElementById("lbSection")
+      .value;
+
+
+  toast(
+    "Generating PDF..."
+  );
+
+
+  try {
+
+    const response =
+      await fetch(API_URL, {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          action:
+            "generateTopperPdf",
+
+          period:
+            lbPeriod,
+
+          dept:
+            dept,
+
+          year:
+            year,
+
+          section:
+            section
+
+        })
+
+      });
+
+
+    const res =
+      await response.json();
+
+
+    if (
+      res.success === false
+    ) {
+
+      toast(
+
+        res.message ||
+        "PDF generation failed",
+
+        "error"
+
+      );
+
+      return;
+
+    }
+
+
+    downloadBase64Pdf(res);
+
+
+  } catch (err) {
+
+    console.error(
+
+      "downloadToppers error:",
+
+      err
+
+    );
+
+
+    toast(
+
+      "PDF generation failed",
+
+      "error"
+
+    );
+
+  }
+
+}
+
+async function downloadDateRangeLeaderboard() {
+
+    const fromDate =
+        document.getElementById("lbFromDate").value;
+
+    const toDate =
+        document.getElementById("lbToDate").value;
+
+    if (!fromDate || !toDate) {
+
+        toast(
+            "Select both From and To dates",
+            "error"
+        );
+
+        return;
+    }
+
+    if (fromDate > toDate) {
+
+        toast(
+            "From Date cannot be after To Date",
+            "error"
+        );
+
+        return;
+    }
+
+    const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+
+            action: "generateDateRangeTopperPdf",
+
+            fromDate: fromDate,
+
+            toDate: toDate,
+
+            dept:
+                document.getElementById("lbDept").value,
+
+            year:
+                document.getElementById("lbYear").value,
+
+            section:
+                document.getElementById("lbSection").value
+
+        })
+    });
+
+    const res = await response.json();
+
+    if (res.success) {
+
+    downloadBase64Pdf(res);
+
+    } else {
+
+        toast(
+            res.message,
+            "error"
+        );
+
+    }
+
+}
+
+// ============================================================
+// DOWNLOAD ABSENTEES PDF
+// ============================================================
+
+async function downloadAbsentees() {
+
+  const date =
+    document
+      .getElementById("absDate")
+      .value;
+
+
+  const dept =
+    document
+      .getElementById("absDept")
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const year =
+    document
+      .getElementById("absYear")
+      .value;
+
+
+  const section =
+    document
+      .getElementById("absSection")
+      .value;
+
+
+  if (!date) {
+
+    toast(
+
+      "Pick a date",
+
+      "error"
+
+    );
+
+    return;
+
+  }
+
+
+  toast(
+    "Generating PDF..."
+  );
+
+
+  try {
+
+    const response =
+      await fetch(API_URL, {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          action:
+            "generateAbsenteePdf",
+
+          date:
+            date,
+
+          dept:
+            dept,
+
+          year:
+            year,
+
+          section:
+            section
+
+        })
+
+      });
+
+
+    const res =
+      await response.json();
+
+
+    if (
+      res.success === false
+    ) {
+
+      toast(
+
+        res.message ||
+        "PDF generation failed",
+
+        "error"
+
+      );
+
+      return;
+
+    }
+
+
+    downloadBase64Pdf(res);
+
+
+  } catch (err) {
+
+    console.error(
+
+      "downloadAbsentees error:",
+
+      err
+
+    );
+
+
+    toast(
+
+      "PDF generation failed",
+
+      "error"
+
+    );
+
+  }
+
+}
+
+// ============================================================
+// INDIVIDUAL STUDENT REPORT
+// ============================================================
+
+async function lookupStudent() {
+
+  const roll =
+    document.getElementById("repRoll").value.trim();
+
+  const period =
+    document.getElementById("repPeriod").value;
+
+
+  if (!roll) {
+
+    toast(
+      "Enter a roll number",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "getAdminStudentReport",
+        rollNo: roll,
+        period: period
+      })
+    });
+
+
+    const res = await response.json();
+
+
+    if (res.success === false) {
+
+      toast(
+        res.message || "Student report unavailable",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    document.getElementById("repResult").innerHTML = `
+
+      <div class="grid cols-4">
+
+        <div class="stat-card">
+
+          <div class="num">
+            ${res.totalAttempted}
+          </div>
+
+          <div class="label">
+            Attempted
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="num">
+            ${res.correct}
+          </div>
+
+          <div class="label">
+            Correct
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="num">
+            ${res.totalMarks}
+          </div>
+
+          <div class="label">
+            Total Marks
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="num">
+            ${res.rank || "-"}/${res.totalStudents}
+          </div>
+
+          <div class="label">
+            Rank
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+
+  } catch (err) {
+
+    console.error(
+      "lookupStudent error:",
+      err
+    );
+
+    toast(
+      "Unable to load student report",
+      "error"
+    );
+
+  }
+
+}
+
+  // ---- Equations & tables: shared renderer ----
+  function isTableRow(l){ return !!l && l.trim().startsWith('|') && l.trim().endsWith('|'); }
+  function isSeparatorRow(l){ return /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test((l||'').trim()); }
+  function splitRow(l){ return l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()); }
+  function renderContent(text){
+    if(!text) return '';
+    const lines = String(text).split(/\r?\n/);
+    let html = ''; let i = 0;
+    while(i < lines.length){
+      const line = lines[i];
+      if(isTableRow(line) && i+1 < lines.length && isSeparatorRow(lines[i+1])){
+        const header = splitRow(line);
+        let k = i+2, bodyRows = [];
+        while(k < lines.length && isTableRow(lines[k])){ bodyRows.push(splitRow(lines[k])); k++; }
+        html += '<table class="rich-table"><thead><tr>' + header.map(h=>'<th>'+h+'</th>').join('') + '</tr></thead><tbody>';
+        bodyRows.forEach(r=>{ html += '<tr>' + r.map(c=>'<td>'+c+'</td>').join('') + '</tr>'; });
+        html += '</tbody></table>';
+        i = k;
+      } else {
+        html += line + '<br>';
+        i++;
+      }
+    }
+    return html;
+  }
+  function typesetMath(el){ if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([el]).catch(()=>{}); } }
+
+  function insertSnippet(type){
+    const templates = {
+      eq: ' $x^{2} + y^{2} = z^{2}$ ',
+      table: '\n| Header 1 | Header 2 |\n|---|---|\n| Row 1 Col 1 | Row 1 Col 2 |\n| Row 2 Col 1 | Row 2 Col 2 |\n'
+    };
+    const el = document.getElementById(lastFocused || 'qText');
+    if(!el) return;
+    const start = el.selectionStart != null ? el.selectionStart : el.value.length;
+    const end = el.selectionEnd != null ? el.selectionEnd : el.value.length;
+    const snippet = templates[type];
+    el.value = el.value.slice(0,start) + snippet + el.value.slice(end);
+    el.focus();
+    el.selectionStart = el.selectionEnd = start + snippet.length;
+  }
+
+  function renderPreview(){
+    const box = document.getElementById('previewBox'), content = document.getElementById('previewContent');
+    box.style.display = 'block';
+    const q = document.getElementById('qText').value, img = document.getElementById('qImage').value.trim();
+    const opts = ['qA','qB','qC','qD'].map(id=>document.getElementById(id).value).filter(v=>v.trim());
+    let html = '';
+    if(img) html += `<img src="${img}" alt="question image">`;
+    html += `<div class="pq-text">${renderContent(q)}</div>`;
+    opts.forEach(o=> html += `<div class="pq-opt">${renderContent(o)}</div>`);
+    content.innerHTML = html;
+    typesetMath(content);
+  }
+
+  function openQPreviewById(qid){
+    const q = allQuestions.find(x => String(x.qid) === String(qid));
+    if(q) openQPreview(q);
+  }
+  function openQPreview(q){
+    const content = document.getElementById('qPreviewContent');
+    let html = '';
+    if(q.imageLink) html += `<img src="${q.imageLink}" alt="question image">`;
+    html += `<div class="pq-text">${renderContent(q.question)}</div>`;
+    [q.optionA,q.optionB,q.optionC,q.optionD].filter(Boolean).forEach(o=> html += `<div class="pq-opt">${renderContent(o)}</div>`);
+    content.innerHTML = html;
+    document.getElementById('qPreviewModal').classList.add('show');
+    typesetMath(content);
+  }
+  function closeQPreview(){ document.getElementById('qPreviewModal').classList.remove('show'); }
+
+  // ---- Reports ----
+  function setLbPeriod(p){
+    lbPeriod = p;
+    document.querySelectorAll('#lbPeriodTabs .t').forEach(t=>t.classList.toggle('active', t.dataset.p===p));
+    renderLeaderboard();
+  }
+  function downloadBase64Pdf(res){
+    const link = document.createElement('a');
+    link.href = 'data:application/pdf;base64,' + res.base64;
+    link.download = res.fileName;
+    link.click();
+    toast('Downloaded: '+res.fileName);
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Daily Question — Login</title>
+<base target="_top">
+<style>
+  :root{
+    --purple:#7C3AED; --purple-dark:#5B21B6; --pink:#DB2777; --pink-light:#F472B6;
+    --grad: linear-gradient(135deg,#7C3AED 0%,#DB2777 100%);
+    --bg:#F7F3FF; --card:#FFFFFF; --text:#1E1533; --muted:#6B6280; --border:#E9DFFB;
+    --shadow: 0 10px 40px rgba(124,58,237,0.15);
+    --radius:18px;
+  }
+  [data-theme="dark"]{
+    --bg:#120E1F; --card:#1C1730; --text:#F1ECFF; --muted:#A79CC9; --border:#332A55;
+    --shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    transition:background .3s,color .3s; padding:20px; position:relative; overflow-x:hidden;
+  }
+  body::before, body::after{
+    content:''; position:fixed; width:400px; height:400px; border-radius:50%;
+    background:var(--grad); opacity:.15; filter:blur(80px); z-index:0;
+  }
+  body::before{ top:-100px; left:-100px; }
+  body::after{ bottom:-100px; right:-100px; }
+  .theme-toggle{
+    position:fixed; top:20px; right:20px; z-index:10;
+    background:var(--card); border:1px solid var(--border); border-radius:50px;
+    padding:8px 16px; cursor:pointer; font-size:14px; color:var(--text);
+    box-shadow:var(--shadow); display:flex; align-items:center; gap:6px;
+  }
+  .wrap{ position:relative; z-index:1; width:100%; max-width:920px;
+    display:grid; grid-template-columns:1fr 1fr; background:var(--card);
+    border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--border);
+  }
+  .brand{
+    background:var(--grad); color:#fff; padding:50px 40px;
+    display:flex; flex-direction:column; justify-content:center; gap:14px;
+  }
+  .brand .badge{ font-size:12px; letter-spacing:3px; opacity:.85; font-weight:600; }
+  .brand h1{ font-size:32px; line-height:1.15; }
+  .brand p{ font-size:14px; opacity:.9; line-height:1.6; }
+  .brand ul{ margin-top:10px; padding-left:18px; font-size:13px; opacity:.9; line-height:2; }
+  .form-side{ padding:50px 40px; display:flex; flex-direction:column; justify-content:center; }
+  .form-side h2{ font-size:20px; margin-bottom:6px; }
+  .form-side p.sub{ font-size:12.5px; color:var(--muted); margin-bottom:24px; }
+  .field{ margin-bottom:16px; }
+  .field label{ font-size:12px; font-weight:600; color:var(--muted); display:block; margin-bottom:6px; letter-spacing:.3px; }
+  .field input{
+    width:100%; padding:13px 14px; border-radius:11px; border:1.5px solid var(--border);
+    background:var(--bg); color:var(--text); font-size:14px; outline:none; transition:.2s;
+  }
+  .field input:focus{ border-color:var(--purple); box-shadow:0 0 0 3px rgba(124,58,237,.15); }
+  .pw-wrap{ position:relative; }
+  .pw-wrap input{ padding-right:42px; }
+  .pw-eye{ position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:15px; background:none; border:none; color:var(--muted); }
+  .btn{
+    width:100%; padding:14px; border:none; border-radius:11px; background:var(--grad);
+    color:#fff; font-weight:700; font-size:15px; cursor:pointer; margin-top:6px;
+    box-shadow:0 8px 20px rgba(124,58,237,.3); transition:.2s;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(124,58,237,.4); }
+  .btn:disabled{ opacity:.6; cursor:not-allowed; transform:none; }
+  .msg{ font-size:13px; margin-top:14px; padding:10px 12px; border-radius:9px; display:none; }
+  .msg.error{ background:#FEE2E2; color:#B91C1C; display:block; }
+  .msg.success{ background:#DCFCE7; color:#15803D; display:block; }
+  .hint{ font-size:12px; color:var(--muted); margin-top:18px; text-align:center; }
+  .forgot-link{ font-size:12.5px; color:var(--purple); text-align:right; margin-top:10px; cursor:pointer; font-weight:600; }
+  .forgot-link:hover{ text-decoration:underline; }
+  .modal-bg{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:300; padding:20px;}
+  .modal-bg.show{ display:flex; }
+  .modal{ background:var(--card); border-radius:18px; padding:26px; max-width:400px; width:100%; box-shadow:var(--shadow); }
+  .modal h3{ font-size:16px; margin-bottom:6px; }
+  .modal p.sub{ font-size:12.5px; color:var(--muted); margin-bottom:18px; }
+  .result-box{ background:var(--bg); border:1.5px dashed var(--purple); border-radius:10px; padding:14px; text-align:center; margin-top:14px; display:none; }
+  .result-box.show{ display:block; }
+  .result-box .pw{ font-size:18px; font-weight:800; color:var(--purple); letter-spacing:1px; margin:6px 0; }
+  .modal-actions{ display:flex; gap:10px; margin-top:18px; }
+  .modal-actions .btn, .modal-actions .btn-outline{ flex:1; padding:12px; border-radius:10px; font-weight:700; font-size:13.5px; cursor:pointer; border:none; margin-top:0; }
+  .btn-outline{ background:none; border:1.5px solid var(--border) !important; color:var(--muted); }
+  .spinner{ width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; display:inline-block; animation:spin .7s linear infinite; vertical-align:-3px; margin-right:6px;}
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+ .footer{
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    z-index: 20;
+    line-height: 1.5;
+    background: rgba(255,255,255,0.85);
+    padding: 6px 14px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] .footer{
+    background: rgba(28,23,48,0.85);
+}
+
+/* Mobile View */
+@media (max-width: 720px){
+    .footer{
+        left: 0;
+        right: 0;
+        bottom: 0;
+        transform: none;
+        width: 100%;
+        border-radius: 0;
+        padding: 10px;
+        font-size: 11px;
+        text-align: center;
+        background: var(--card);
+        border-top: 1px solid var(--border);
+        box-shadow: 0 -2px 10px rgba(0,0,0,.08);
+
+        /* Supports phones with gesture/navigation bars */
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+}
+
+
+@media (max-width: 720px){
+    body{
+        padding-bottom: 60px;
+    }
+}
+
+  @media(max-width:720px){
+    .wrap{ grid-template-columns:1fr; }
+    .brand{ padding:30px 26px 18px; }
+    .brand h1{ font-size:22px; }
+    .brand ul{ display:none; }
+    .form-side{ padding:26px; }
+    .theme-toggle{ top:14px; right:14px; padding:7px 12px; font-size:12.5px; }
+  }
+  @media(max-width:380px){
+    .form-side h2{ font-size:18px; }
+    .field input{ font-size:16px; } /* avoids iOS zoom-on-focus */
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">🌙 Dark</button>
+
+<div class="wrap">
+  <div class="brand">
+    <div class="badge">Practice Today · Perform Tomorrow</div>
+    <h1>Every Day,<br>One Minute Challenge.</h1>
+    <p>Your daily destination for quick assessments, performance tracking, and continuous improvement.</p>
+    <ul>
+      <li>🔥 Daily streaks &amp; leaderboards</li>
+      <li>⏱ Timed, full-screen test mode</li>
+      <li>∑ Equations &amp; tables supported</li>
+    </ul>
+  </div>
+
+  <div class="form-side">
+    <h2>Welcome back</h2>
+   
+
+    <form id="loginForm" onsubmit="event.preventDefault(); doLogin(event);">
+      <div class="field">
+        <label>User Name (Roll No.)</label>
+        <input type="text" id="loginId" placeholder="e.g. 21CS045" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="loginPass" placeholder="Enter your password" required>
+          <button type="button" class="pw-eye" onclick="togglePw('loginPass',this)">👁</button>
+        </div>
+      </div>
+      <button class="btn" type="submit" id="loginBtn">Login</button>
+      <div class="msg" id="loginMsg"></div>
+      <div class="forgot-link" onclick="openForgot()">Forgot password? (students)</div>
+    </form>
+
+    
+  </div>
+</div>
+
+<footer class="footer">
+    © 2026 Daily Assessment Platform <br>
+    <span>Developed and Maintained by <strong>Nanjoni Technologies</strong></span>
+</footer>
+
+<!-- Forgot Password Modal (students) -->
+<div class="modal-bg" id="forgotModal">
+  <div class="modal">
+    <h3>🔑 Reset your password</h3>
+    <p class="sub">Enter your Roll No and full Name exactly as your admin registered them. We'll generate a new password for you instantly.</p>
+    <div class="field">
+      <label>Roll Number</label>
+      <input type="text" id="fpRoll" placeholder="e.g. 21CS045">
+    </div>
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" id="fpName" placeholder="As registered by admin">
+    </div>
+    <div class="msg" id="fpMsg"></div>
+    <div class="result-box" id="fpResult">
+      <div style="font-size:12px;color:var(--muted);">Your new password is</div>
+      <div class="pw" id="fpPassword">—</div>
+      <div style="font-size:11.5px;color:var(--muted);">Save it now — use it to log in right away, and you can change it anytime from Settings after logging in.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeForgot()">Close</button>
+      <button class="btn" id="fpBtn" onclick="doForgotPassword()">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ⚠️ PASTE YOUR DEPLOYED WEB APP URL BELOW (Deploy → Manage deployments → copy "Web app" URL)
+  const BASE_URL = "https://script.google.com/macros/s/AKfycbzDYz8f9zfcQT2ab7XljdvluqjKM1N4LjtmpMsM3uJjhOyNev0BfT3-aqoqpNLLBvho3Q/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzDYz8f9zfcQT2ab7XljdvluqjKM1N4LjtmpMsM3uJjhOyNev0BfT3-aqoqpNLLBvho3Q/exec";
+
+  // ---- Theme ----  
+  const themeToggle = document.getElementById('themeToggle');
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    themeToggle.textContent = t === 'dark' ? '☀️ Light' : '🌙 Dark';
+    localStorage.setItem('dqa_theme', t);
+  }
+  applyTheme(localStorage.getItem('dqa_theme') || 'light');
+  themeToggle.onclick = () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  };
+
+  function togglePw(id, btn){
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+  }
+
+  function showMsg(id, text, type){
+    const el = document.getElementById(id);
+    el.textContent = text; el.className = 'msg ' + type;
+  }
+
+  // ---- Unified login: server figures out admin vs student, we just redirect ----
+async function doLogin(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Logging in...';
+
+    const id = document.getElementById('loginId').value.trim();
+    const pass = document.getElementById('loginPass').value;
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "login",
+                identifier: id,
+                password: pass
+            })
+        });
+
+        const res = await response.json();
+
+        btn.disabled = false;
+        btn.textContent = "Login";
+
+        if (res.success) {
+
+            if (res.role === "admin") {
+                sessionStorage.setItem("dqa_admin", JSON.stringify(res));
+                window.location.href = "admin.html";
+            } else {
+                sessionStorage.setItem("dqa_student", JSON.stringify(res));
+                window.location.href = "student.html";
+            }
+
+        } else {
+            showMsg("loginMsg", res.message, "error");
+        }
+
+    } catch (err) {
+
+        btn.disabled = false;
+        btn.textContent = "Login";
+        showMsg("loginMsg", err.message, "error");
+
+    }
+
+    return false;
+}
+
+  // ---- Forgot Password (student) ----
+  function openForgot(){
+    document.getElementById('fpRoll').value = document.getElementById('loginId').value.trim();
+    document.getElementById('fpName').value = '';
+    document.getElementById('fpMsg').className = 'msg';
+    document.getElementById('fpResult').classList.remove('show');
+    document.getElementById('forgotModal').classList.add('show');
+  }
+  function closeForgot(){ document.getElementById('forgotModal').classList.remove('show'); }
+
+  async function doForgotPassword() {
+
+    const roll = document.getElementById("fpRoll").value.trim();
+    const name = document.getElementById("fpName").value.trim();
+
+    if (!roll || !name) {
+        showMsg("fpMsg", "Enter both Roll No and Name", "error");
+        return;
+    }
+
+    const btn = document.getElementById("fpBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Verifying...';
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "studentForgotPassword",
+                rollNo: roll,
+                name: name
+            })
+        });
+
+        const res = await response.json();
+
+        btn.disabled = false;
+        btn.textContent = "Reset Password";
+
+        if (res.success) {
+
+            showMsg("fpMsg", "Identity verified!", "success");
+
+            document.getElementById("fpPassword").textContent = res.password;
+            document.getElementById("fpResult").classList.add("show");
+
+            document.getElementById("loginId").value = res.rollNo;
+            document.getElementById("loginPass").value = res.password;
+
+        } else {
+
+            document.getElementById("fpResult").classList.remove("show");
+            showMsg("fpMsg", res.message, "error");
+
+        }
+
+    } catch (err) {
+
+        btn.disabled = false;
+        btn.textContent = "Reset Password";
+
+        showMsg("fpMsg", err.message, "error");
+
+    }
+}
+</script>
+</body>
+</html>

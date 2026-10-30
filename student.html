@@ -1,0 +1,3510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Student — Daily Question</title>
+<base target="_top">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" id="mathjax-script" async></script>
+<style>
+  @media(max-width:600px){
+
+  .content{
+    padding:14px;
+  }
+
+  .topbar{
+    padding:12px 14px;
+  }
+
+  .topbar h2{
+    font-size:17px;
+  }
+
+  .grid.cols-4{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .stat-card{
+    padding:14px 10px;
+  }
+
+  .stat-card .num{
+    font-size:22px;
+  }
+
+  .hero{
+    padding:22px 18px;
+    border-radius:16px;
+  }
+
+  .hero h2{
+    font-size:19px;
+  }
+
+  .card{
+    padding:16px;
+    border-radius:14px;
+  }
+
+  .test-top{
+    padding:10px 14px;
+  }
+
+  .timer-ring{
+    width:48px;
+    height:48px;
+    font-size:14px;
+    border-width:4px;
+  }
+
+  .test-body{
+    padding:12px;
+    align-items:flex-start;
+    overflow-y:auto;
+  }
+
+  .q-card{
+    padding:18px 14px;
+    border-radius:15px;
+    margin-top:10px;
+  }
+
+  .q-text{
+    font-size:16px;
+    line-height:1.5;
+    margin-bottom:18px;
+  }
+
+  .opt{
+    padding:13px 12px;
+    font-size:14px;
+    min-height:48px;
+  }
+
+  .rich-table{
+    display:block;
+    width:100%;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .modal-bg{
+    padding:10px;
+  }
+
+  .modal{
+    padding:20px 16px;
+    max-height:92vh;
+  }
+
+  .instructions-modal{
+    max-height:94vh;
+  }
+
+  .instructions-header{
+    padding:18px 16px 10px;
+  }
+
+  .instructions-scroll{
+    padding:10px 16px 16px;
+  }
+
+  .instructions-actions{
+    padding:12px 16px 16px;
+  }
+
+  .instructions-actions .btn{
+    padding:11px 8px;
+    font-size:13px;
+  }
+
+  .toast{
+    left:14px;
+    right:14px;
+    bottom:14px;
+    max-width:none;
+  }
+
+}
+  :root{
+    --purple:#7C3AED; --purple-dark:#5B21B6; --pink:#DB2777; --pink-light:#F472B6;
+    --grad: linear-gradient(135deg,#7C3AED 0%,#DB2777 100%);
+    --bg:#F7F3FF; --card:#FFFFFF; --text:#1E1533; --muted:#6B6280; --border:#E9DFFB;
+    --shadow: 0 6px 24px rgba(124,58,237,0.1); --radius:16px;
+  }
+  [data-theme="dark"]{
+    --bg:#120E1F; --card:#1C1730; --text:#F1ECFF; --muted:#A79CC9; --border:#332A55;
+    --shadow: 0 6px 24px rgba(0,0,0,0.4);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif; background:var(--bg); color:var(--text); transition:.3s;}
+  .app{ display:flex; min-height:100vh; }
+  .sidebar{ width:220px; background:var(--card); border-right:1px solid var(--border); padding:20px 14px; position:sticky; top:0; height:100vh; display:flex; flex-direction:column; gap:4px; z-index:20;}
+  .logo{ display:flex; align-items:center; gap:10px; padding:8px 10px 20px; font-weight:800; font-size:16px; }
+  .logo span{ background:var(--grad); width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px;}
+  .profile{ background:var(--bg); border-radius:12px; padding:12px; margin-bottom:14px; font-size:12.5px; }
+  .profile b{ display:block; font-size:14px; margin-bottom:2px; }
+  .nav-item{ padding:12px 14px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:600; color:var(--muted); display:flex; align-items:center; gap:10px; }
+  .nav-item:hover{ background:var(--bg); }
+  .nav-item.active{ background:var(--grad); color:#fff; }
+  .sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--border); }
+  .main{ flex:1; min-width:0; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:16px 24px; background:var(--card); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10;}
+  .menu-btn{ display:none; background:none; border:none; font-size:22px; cursor:pointer; color:var(--text); }
+  .top-actions{ display:flex; gap:10px; align-items:center; }
+  .theme-toggle, .logout-btn{ background:var(--bg); border:1px solid var(--border); border-radius:50px; padding:8px 14px; cursor:pointer; font-size:13px; color:var(--text); }
+  .logout-btn{ color:#DB2777; font-weight:600; }
+  .content{ padding:24px; max-width:1100px; margin:0 auto; }
+  .page{ display:none; } .page.active{ display:block; animation:fade .3s; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+  .grid{ display:grid; gap:16px; } .grid.cols-4{ grid-template-columns:repeat(4,1fr); }
+  .stat-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); text-align:center;}
+  .stat-card .num{ font-size:26px; font-weight:800; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .stat-card .label{ font-size:12px; color:var(--muted); font-weight:600; margin-top:4px; }
+  .stat-card.streak{ background:linear-gradient(135deg, rgba(124,58,237,.08), rgba(219,39,119,.08)); }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); margin-bottom:18px; }
+  .card h3{ font-size:15px; margin-bottom:16px; }
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{ text-align:left; padding:10px; background:var(--bg); color:var(--muted); font-size:11.5px; text-transform:uppercase; }
+  td{ padding:10px; border-bottom:1px solid var(--border); }
+  .table-wrap{ overflow-x:auto; }
+  .badge{ padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge.gold{ background:#FEF3C7; color:#92400E; } .badge.silver{ background:#E5E7EB; color:#374151; }
+  .badge.bronze{ background:#FED7AA; color:#9A3412; } .badge.rank{ background:var(--bg); color:var(--muted); }
+  .badge.me{ background:var(--grad); color:#fff; }
+
+  .ak-item{ border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; background:var(--bg); }
+  .ak-item-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px; }
+  .ak-date{ font-size:12px; font-weight:700; color:var(--muted); }
+  .ak-question{ font-weight:700; font-size:14.5px; margin-bottom:10px; }
+  .ak-opt{ padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; margin-bottom:7px; font-size:13.5px; background:var(--card); }
+  .ak-opt.correct{ background:#DCFCE7; border-color:#16A34A; color:#15803D; font-weight:700; }
+  .ak-opt.wrong-selected{ background:#FEE2E2; border-color:#DC2626; color:#B91C1C; }
+  .ak-opt.selected-only{ border-color:var(--purple); }
+  .ak-locked{ font-size:12.5px; color:var(--muted); background:var(--card); border:1px dashed var(--border); border-radius:8px; padding:10px 12px; }
+  .tabs2{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .tabs2 .t{ padding:8px 16px; border-radius:20px; background:var(--bg); border:1px solid var(--border); font-size:12.5px; font-weight:600; cursor:pointer; color:var(--muted); }
+  .tabs2 .t.active{ background:var(--grad); color:#fff; border-color:transparent; }
+  .field{ margin-bottom:14px; } .field label{ font-size:12px; font-weight:600; color:var(--muted); display:block; margin-bottom:6px; }
+  .field input{ width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text); font-size:13.5px; }
+  .btn{ padding:12px 22px; border:none; border-radius:10px; background:var(--grad); color:#fff; font-weight:700; font-size:14px; cursor:pointer; }
+  .btn.outline{ background:none; border:1.5px solid var(--purple); color:var(--purple); }
+  .btn:disabled{ opacity:.6; cursor:not-allowed; }
+  .toast{ position:fixed; bottom:20px; right:20px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); padding:14px 18px; border-radius:12px; font-size:13px; z-index:100; display:none; max-width:320px;}
+  .toast.show{ display:block; animation:fade .3s; }
+  .toast.error{ border-left:4px solid #DC2626; } .toast.success{ border-left:4px solid #16A34A; }
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; z-index:15; } .overlay.show{ display:block; }
+  .muted{ color:var(--muted); font-size:12.5px; }
+  .flex-between{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  .pill{ display:inline-flex; gap:6px; align-items:center; }
+  .btn.small{ padding:7px 12px; font-size:12px; }
+
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:14px; }
+  .cal-cell{ aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; background:var(--bg); border:1px solid var(--border); color:var(--muted); cursor:default; }
+  .cal-cell.pad{ background:transparent; border:none; }
+  .cal-cell.attempted{ background:rgba(124,58,237,.35); color:#fff; border-color:transparent; }
+  .cal-cell.allcorrect{ background:var(--grad); color:#fff; border-color:transparent; }
+  .cal-cell.today{ box-shadow:0 0 0 2px var(--pink) inset; }
+  .cal-legend{ display:flex; gap:16px; margin-top:14px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+  .cal-legend .sw{ display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+  .sw-0{ background:var(--bg); border:1px solid var(--border); }
+  .sw-1{ background:rgba(124,58,237,.35); }
+  .sw-2{ background:var(--grad); }
+
+  /* Password field with show/hide */
+  .pw-wrap{ position:relative; }
+  .pw-wrap input{ padding-right:42px; }
+  .pw-eye{ position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:15px; background:none; border:none; color:var(--muted); }
+  .pw-match{ font-size:11.5px; margin-top:5px; min-height:14px; }
+  .pw-match.ok{ color:#16A34A; } .pw-match.bad{ color:#DC2626; }
+  .strength-bar{ height:5px; border-radius:4px; background:var(--border); margin-top:8px; overflow:hidden; }
+  .strength-fill{ height:100%; width:0%; transition:.3s; background:#DC2626; }
+
+  /* Hero / today card */
+  .hero{ background:var(--grad); border-radius:20px; padding:30px; color:#fff; margin-bottom:20px; position:relative; overflow:hidden; }
+  .hero h2{ font-size:22px; margin-bottom:6px; } .hero p{ opacity:.9; font-size:13.5px; margin-bottom:16px; }
+  .hero .btn{ background:#fff; color:var(--purple); }
+  .progress-bar{ height:8px; background:rgba(255,255,255,.3); border-radius:8px; overflow:hidden; margin-top:14px; }
+  .progress-fill{ height:100%; background:#fff; border-radius:8px; transition:.4s; }
+
+  /* Fullscreen test overlay */
+  #testOverlay{ position:fixed; inset:0; background:var(--bg); z-index:200; display:none; flex-direction:column; }
+  #testOverlay.show{ display:flex; }
+  .test-top{ display:flex; justify-content:space-between; align-items:center; padding:18px 26px; background:var(--card); border-bottom:1px solid var(--border); }
+  .timer-ring{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; border:5px solid var(--border); position:relative; }
+  .timer-ring.warn{ border-color:#DB2777; color:#DB2777; }
+  .test-body{ flex:1; display:flex; align-items:center; justify-content:center; padding:30px; }
+  .q-card{ max-width:640px; width:100%; background:var(--card); border-radius:20px; padding:30px; box-shadow:var(--shadow); }
+  .q-card img{ max-width:100%; border-radius:12px; margin-bottom:16px; }
+  .q-text{ font-size:18px; font-weight:700; margin-bottom:22px; line-height:1.5; }
+  .q-text .rich-table, .opt .rich-table{ font-weight:400; }
+  .rich-table{ border-collapse:collapse; margin:8px 0; font-size:13px; }
+  .rich-table th, .rich-table td{ border:1px solid var(--border); padding:6px 10px; }
+  .rich-table th{ background:var(--card); }
+  .opt{ display:block; width:100%; text-align:left; padding:14px 16px; margin-bottom:10px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text); font-size:14px; cursor:pointer; transition:.15s; }
+  .opt:hover{ border-color:var(--purple); }
+  .opt.selected{ background:var(--grad); color:#fff; border-color:transparent; }
+  .opt.correct{ background:#DCFCE7; border-color:#16A34A; color:#15803D; }
+  .opt.wrong{ background:#FEE2E2; border-color:#DC2626; color:#B91C1C; }
+  .instructions ul{ padding-left:18px; font-size:13.5px; line-height:1.9; color:var(--muted); }
+  .qtime-label{ font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-top:16px; margin-bottom:8px; }
+  .qtime-list{ max-height:160px; overflow-y:auto; border:1px solid var(--border); border-radius:10px; }
+  .qtime-row{ display:flex; justify-content:space-between; padding:9px 12px; font-size:13px; border-bottom:1px solid var(--border); }
+  .qtime-row:last-child{ border-bottom:none; }
+  .qtime-row .q-num{ font-weight:700; }
+  .qtime-row .q-time{ color:var(--purple); font-weight:700; }
+  .qtime-row .q-marks{ color:var(--muted); font-size:11.5px; margin-left:8px; }
+  .modal-bg{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:300; padding:20px;}
+  .modal-bg.show{ display:flex; }
+  .modal{ background:var(--card); border-radius:18px; padding:28px; max-width:480px; width:100%; box-shadow:var(--shadow); }
+  /* =========================================================
+   SCROLLABLE TEST INSTRUCTIONS
+========================================================= */
+
+.instructions-modal {
+
+  max-width: 500px;
+
+  width: 100%;
+
+  max-height: 88vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  padding: 0;
+
+  overflow: hidden;
+
+}
+
+
+.instructions-header {
+
+  padding: 22px 24px 12px;
+
+  flex-shrink: 0;
+
+  border-bottom: 1px solid var(--border);
+
+}
+
+
+.instructions-scroll {
+
+  flex: 1;
+
+  overflow-y: auto;
+
+  padding: 12px 24px 20px;
+
+  overscroll-behavior: contain;
+
+}
+
+
+.instructions-scroll::-webkit-scrollbar {
+
+  width: 7px;
+
+}
+
+
+.instructions-scroll::-webkit-scrollbar-thumb {
+
+  background: var(--border);
+
+  border-radius: 10px;
+
+}
+
+
+.instructions-actions {
+
+  display: flex;
+
+  gap: 10px;
+
+  padding: 16px 24px 20px;
+
+  border-top: 1px solid var(--border);
+
+  background: var(--card);
+
+  flex-shrink: 0;
+
+}
+
+  @media(max-width:900px){
+    .grid.cols-4{ grid-template-columns:1fr 1fr; }
+    .sidebar{ position:fixed; left:-240px; height:100vh; box-shadow:0 0 30px rgba(0,0,0,.2); }
+    .sidebar.open{ left:0; }
+    .menu-btn{ display:block; }
+    .q-text{ font-size:16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+
+<div class="app">
+  <div class="sidebar" id="sidebar">
+    <div class="logo"><span>Q</span> Student</div>
+    <div class="profile"><b id="pName">–</b><span id="pMeta" class="muted"></span></div>
+    <div class="nav-item active" data-page="home" onclick="goPage('home')">🏠 Home</div>
+    <div class="nav-item" data-page="leaderboard" onclick="goPage('leaderboard')">🏆 Leaderboard</div>
+    <div class="nav-item" data-page="progress" onclick="goPage('progress')">📈 My Progress</div>
+    <div class="nav-item" data-page="answerkey" onclick="goPage('answerkey')">🗝 Answer Key</div>
+    <div class="nav-item" data-page="settings" onclick="goPage('settings')">🔒 Reset Password</div>
+    <div class="sidebar-foot"><div class="nav-item" onclick="logout()">🚪 Logout</div></div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="menu-btn" onclick="toggleSidebar(true)">☰</button>
+        <h2 id="pageTitle">Home</h2>
+      </div>
+      <div class="top-actions">
+        <button class="theme-toggle" id="themeToggle">🌙 Dark</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- HOME -->
+      <div class="page active" id="page-home">
+        <div class="hero">
+          <h2 id="heroTitle">Today's Test</h2>
+          <p id="heroSub">Loading today's status...</p>
+          <div class="progress-bar"><div class="progress-fill" id="heroProgress" style="width:0%"></div></div>
+          <button class="btn" style="margin-top:18px;" id="startBtn" onclick="openInstructions()">Start Today's Test</button>
+        </div>
+        <div class="grid cols-4">
+          <div class="stat-card"><div class="num" id="hAttempted">–</div><div class="label">Total Attempted</div></div>
+          <div class="stat-card"><div class="num" id="hCorrect">–</div><div class="label">Total Correct</div></div>
+          <div class="stat-card"><div class="num" id="hMarks">–</div><div class="label">Total Marks</div></div>
+          <div class="stat-card"><div class="num" id="hRank">–</div><div class="label">Overall Rank</div></div>
+        </div>
+        <div class="grid cols-4" style="margin-top:16px;">
+          <div class="stat-card streak"><div class="num" id="hStreak">–</div><div class="label">🔥 Day Streak</div></div>
+          <div class="stat-card streak"><div class="num" id="hBestStreak">–</div><div class="label">🏅 Best Streak</div></div>
+          <div class="stat-card streak"><div class="num" id="hActiveDays">–</div><div class="label">📅 Active Days</div></div>
+          <div class="stat-card streak"><div class="num" id="hAccuracy">–</div><div class="label">🎯 Accuracy</div></div>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div class="page" id="page-leaderboard">
+        <div class="card">
+          <div class="tabs2" id="lbTabs">
+            <div class="t active" data-p="day" onclick="setLbPeriod('day')">Today</div>
+            <div class="t" data-p="week" onclick="setLbPeriod('week')">This Week</div>
+            <div class="t" data-p="month" onclick="setLbPeriod('month')">This Month</div>
+            <div class="t" data-p="year" onclick="setLbPeriod('year')">This Year</div>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Rank</th><th>Roll No</th><th>Name</th><th>Marks</th><th>Correct/Attempted</th></tr></thead>
+            <tbody id="lbBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="page" id="page-progress">
+        <div class="card">
+          <div class="flex-between" style="margin-bottom:6px;">
+            <h3 style="margin-bottom:0;">📅 Activity Calendar</h3>
+            <div class="pill">
+              <button class="btn small outline" onclick="shiftMonth(-1)">← Prev</button>
+              <span class="muted" id="calLabel" style="align-self:center;font-weight:700;"></span>
+              <button class="btn small outline" onclick="shiftMonth(1)">Next →</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-legend">
+            <span><i class="sw sw-0"></i> No attempt</span>
+            <span><i class="sw sw-1"></i> Attempted</span>
+            <span><i class="sw sw-2"></i> All correct</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>📊 My Answer History</h3>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Selected</th><th>Result</th><th>Marks</th><th>Time Taken</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ANSWER KEY -->
+      <div class="page" id="page-answerkey">
+        <div class="card">
+          <h3>🗝 Answer Key</h3>
+          <p
+  class="muted"
+  style="margin-bottom:14px;"
+>
+  Review your submitted answers here.
+  Answer review is available only when
+  enabled by the admin.
+</p>
+          <div id="answerKeyList"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="card" style="max-width:440px;">
+          <h3>🔒 Reset Password</h3>
+          <p class="muted" style="margin-bottom:16px;">Enter your current password to set a new one.</p>
+          <div class="field">
+            <label>Current Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="oldPass">
+              <button type="button" class="pw-eye" onclick="togglePw('oldPass',this)">👁</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>New Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="newPass" oninput="checkStrength(); checkMatch();">
+              <button type="button" class="pw-eye" onclick="togglePw('newPass',this)">👁</button>
+            </div>
+            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          </div>
+          <div class="field">
+            <label>Confirm New Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="confirmPass" oninput="checkMatch();">
+              <button type="button" class="pw-eye" onclick="togglePw('confirmPass',this)">👁</button>
+            </div>
+            <div class="pw-match" id="pwMatchMsg"></div>
+          </div>
+          <button class="btn" id="pwSubmitBtn" onclick="updatePassword()">Update Password</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Instructions Modal -->
+<!-- Instructions Modal -->
+
+<div
+  class="modal-bg"
+  id="instrModal"
+>
+
+  <div
+    class="modal instructions instructions-modal"
+  >
+
+
+    <div class="instructions-header">
+
+      <h3 style="margin:0;">
+
+        📝 How to attend today's exam
+
+      </h3>
+
+    </div>
+
+
+    <div class="instructions-scroll">
+
+
+      <ul>
+
+        <li>
+
+          Today's test has
+
+          <b id="instrCount">0</b>
+
+          question(s).
+
+          The exact time limit for every question
+          is displayed below.
+
+        </li>
+
+
+        <li>
+
+          Read every question carefully.
+
+          Equations, mathematical expressions
+          and tables will be displayed exactly
+          as configured by the administrator.
+
+        </li>
+
+
+        <li>
+
+          Every question has its
+
+          <b>own countdown timer</b>.
+
+          Submit your answer before the timer
+          reaches zero.
+
+        </li>
+
+
+        <li>
+
+          Selecting an option will
+
+          <b>immediately submit your answer</b>.
+
+          Once submitted, the answer cannot
+          be changed.
+
+        </li>
+
+
+        <li>
+
+          The system will only save your answer.
+
+          <b>
+            Correct or wrong answer indication
+            will not be displayed during the test.
+          </b>
+
+        </li>
+
+
+        <li>
+
+          If the timer reaches zero without
+          selecting an answer, the question
+          will be recorded as
+
+          <b>unattempted with 0 marks</b>.
+
+        </li>
+
+
+        <li>
+
+          <b>One-strike violation policy:</b>
+
+          Any prohibited activity will immediately
+          terminate today's test.
+
+        </li>
+
+
+        <li>
+
+          Prohibited activities include:
+
+          tab switching,
+          application switching,
+          browser minimization,
+          exiting full-screen mode,
+          notification interaction,
+          losing browser focus,
+          copy,
+          cut,
+          paste,
+          right-click,
+          print shortcut,
+          save-page shortcut,
+          view-source shortcut
+          or developer-tools activity.
+
+        </li>
+
+
+        <li>
+
+          If any violation is detected,
+
+          <b>
+            today's test will be permanently
+            marked as completed.
+          </b>
+
+        </li>
+
+
+        <li>
+
+          After a violation, you
+
+          <b>
+            cannot reopen or continue the same test.
+          </b>
+
+        </li>
+
+
+        <li>
+
+          Answers submitted
+
+          <b>before the violation</b>
+
+          will remain saved.
+
+          Marks already obtained from those
+          submitted answers will also remain saved.
+
+        </li>
+
+
+        <li>
+
+          The current unanswered question and
+          all remaining questions will not be
+          submitted after a violation.
+
+        </li>
+
+
+        <li>
+
+          Correct answers can be viewed from the
+
+          <b>Answer Key</b>
+
+          page only after the administrator
+          releases the answer key.
+
+        </li>
+
+      </ul>
+
+
+      <div class="qtime-label">
+
+        ⏱ Question-wise time limits
+
+      </div>
+
+
+      <div
+        class="qtime-list"
+        id="qtimeList"
+      ></div>
+
+
+    </div>
+
+
+    <div class="instructions-actions">
+
+      <button
+        class="btn outline"
+        onclick="closeInstructions()"
+        style="flex:1;"
+      >
+
+        Cancel
+
+      </button>
+
+
+      <button
+        class="btn"
+        onclick="beginTest()"
+        style="flex:1;"
+      >
+
+        Begin Test
+
+      </button>
+
+    </div>
+
+
+  </div>
+
+</div>
+
+<!-- Fullscreen Test -->
+<div id="testOverlay">
+  <div class="test-top">
+    <div><b id="qProgressLabel">Question 1 of 1</b></div>
+    <div class="timer-ring" id="timerRing">30</div>
+  </div>
+  <div class="test-body">
+    <div class="q-card" id="qCard"></div>
+  </div>
+</div>
+
+<!-- VIOLATION MODAL -->
+
+<div class="modal-bg" id="violationModal">
+
+  <div
+    class="modal"
+    style="max-width:480px;text-align:center;"
+  >
+
+    <div style="font-size:46px;">
+      🚫
+    </div>
+
+    <h3
+      style="
+        font-size:20px;
+        color:#DC2626;
+        margin-bottom:8px;
+      "
+    >
+      Test Terminated
+    </h3>
+
+    <p
+      class="muted"
+      id="violationMessage"
+      style="line-height:1.7;"
+    >
+      A test rule violation was detected.
+    </p>
+
+
+    <div
+      style="
+        background:var(--bg);
+        border:1px solid var(--border);
+        border-radius:12px;
+        padding:14px;
+        margin-top:15px;
+      "
+    >
+
+      <b id="violationTypeLabel">
+        Violation
+      </b>
+
+      <div
+        class="muted"
+        style="margin-top:5px;"
+      >
+        Your test has been permanently closed.
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn"
+      style="
+        width:100%;
+        margin-top:18px;
+      "
+      onclick="closeViolationAndReturn()"
+    >
+      Return to Dashboard
+    </button>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ⚠️ PASTE YOUR DEPLOYED WEB APP URL BELOW (Deploy → Manage deployments → copy "Web app" URL)
+  const BASE_URL = "https://script.google.com/macros/s/AKfycbzDYz8f9zfcQT2ab7XljdvluqjKM1N4LjtmpMsM3uJjhOyNev0BfT3-aqoqpNLLBvho3Q/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzDYz8f9zfcQT2ab7XljdvluqjKM1N4LjtmpMsM3uJjhOyNev0BfT3-aqoqpNLLBvho3Q/exec";
+  const session = JSON.parse(sessionStorage.getItem('dqa_student') || 'null');
+  if (!session || !session.success) {
+
+  window.location.replace("index.html");
+
+} else {
+
+  document
+    .getElementById('pName')
+    .textContent =
+    session.name;
+
+
+  document
+    .getElementById('pMeta')
+    .textContent =
+
+    session.rollNo +
+
+    ' · ' +
+
+    session.dept +
+
+    ' · Yr ' +
+
+    session.year +
+
+    ' · Sec ' +
+
+    session.section;
+
+}
+
+  // Theme
+  const themeToggle = document.getElementById('themeToggle');
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    themeToggle.textContent = t === 'dark' ? '☀️ Light' : '🌙 Dark';
+    localStorage.setItem('dqa_theme', t);
+  }
+  applyTheme(localStorage.getItem('dqa_theme') || 'light');
+  themeToggle.onclick = () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+
+  function toggleSidebar(open){
+    document.getElementById('sidebar').classList.toggle('open', open);
+    document.getElementById('overlay').classList.toggle('show', open);
+  }
+  function logout() {
+
+  sessionStorage.removeItem(
+    'dqa_student'
+  );
+
+  window.location.replace(
+    "index.html"
+  );
+
+}
+  function toast(msg, type){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + (type||'success');
+    setTimeout(()=> t.className='toast', 3000);
+  }
+  const PAGE_TITLES = { home:'Home', leaderboard:'Leaderboard', progress:'My Progress', answerkey:'Answer Key', settings:'Reset Password' };
+  function goPage(p){
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page===p));
+    document.querySelectorAll('.page').forEach(pg => pg.classList.toggle('active', pg.id==='page-'+p));
+    document.getElementById('pageTitle').textContent = PAGE_TITLES[p] || p;
+    toggleSidebar(false);
+    if(p==='leaderboard') renderLeaderboard();
+    if(p==='progress'){ renderHistory(); renderCalendar(); }
+    if(p==='answerkey') renderAnswerKey();
+  }
+  function rankBadge(r, isMe){
+    let cls = 'rank';
+    if(r===1) cls='gold'; else if(r===2) cls='silver'; else if(r===3) cls='bronze';
+    if(isMe) cls='me';
+    const icon = r===1?'🥇 ':r===2?'🥈 ':r===3?'🥉 ':'#';
+    return `<span class="badge ${cls}">${icon}${r}</span>`;
+  }
+
+  // ---- Home ----
+  let todayInfo = null;
+async function loadHome() {
+
+  try {
+
+    // ============================================================
+    // TODAY'S TEST INFO
+    // ============================================================
+
+    let response = await fetch(API_URL, {
+
+      method: "POST",
+
+      body: JSON.stringify({
+
+        action: "getTodayTestInfo",
+
+        rollNo: session.rollNo
+
+      })
+
+    });
+
+
+    if (!response.ok) {
+
+      throw new Error(
+
+        "Unable to load today's test information"
+
+      );
+
+    }
+
+
+    let info = await response.json();
+
+
+    console.log(
+
+      "getTodayTestInfo response:",
+
+      info
+
+    );
+
+
+    // ============================================================
+    // VALIDATE API RESPONSE
+    // ============================================================
+
+    if (
+
+      !info ||
+
+      typeof info !== "object"
+
+    ) {
+
+      throw new Error(
+
+        "Invalid test information received from server"
+
+      );
+
+    }
+
+
+    if (info.success === false) {
+
+      throw new Error(
+
+        info.message ||
+
+        "Unable to load today's test"
+
+      );
+
+    }
+
+
+    // ============================================================
+    // NORMALIZE TEST INFO
+    // ============================================================
+
+    info.totalQuestions =
+
+      Number(
+
+        info.totalQuestions || 0
+
+      );
+
+
+    info.attempted =
+
+      Number(
+
+        info.attempted || 0
+
+      );
+
+
+    info.remaining =
+
+      Number(
+
+        info.remaining || 0
+
+      );
+
+
+    info.questions =
+
+      Array.isArray(info.questions)
+
+        ? info.questions
+
+        : [];
+
+
+    info.completed =
+
+      info.completed === true;
+
+
+    info.violated =
+
+      info.violated === true;
+
+
+    todayInfo = info;
+
+
+    const el =
+
+      document.getElementById(
+
+        "heroSub"
+
+      );
+
+
+    const btn =
+
+      document.getElementById(
+
+        "startBtn"
+
+      );
+
+
+    const prog =
+
+      document.getElementById(
+
+        "heroProgress"
+
+      );
+
+
+    // ============================================================
+    // VIOLATED TEST
+    // ============================================================
+
+    if (info.testClosed) {
+
+  el.textContent =
+    "Today's test window has closed.";
+
+  btn.disabled = true;
+
+  btn.textContent =
+    "Test Closed";
+
+
+} else if (info.violated) {
+
+  el.textContent =
+
+    "Today's test is completed. " +
+
+    "Test terminated due to: " +
+
+    info.violationLabel +
+
+    ". Previously submitted answers and marks are retained.";
+
+
+  btn.disabled = true;
+
+
+  btn.textContent =
+    "✓ Completed";
+
+
+} else if (info.totalQuestions === 0) {
+
+  el.textContent =
+    "No question has been posted for today yet.";
+
+  btn.disabled = true;
+
+  btn.textContent =
+    "No Test Today";
+
+
+} else if (info.completed) {
+
+  el.textContent =
+    `You've completed today's test — ${info.attempted}/${info.totalQuestions}`;
+
+  btn.disabled = true;
+
+  btn.textContent =
+    "✓ Completed";
+
+
+} else {
+
+  el.textContent =
+    `${info.remaining} of ${info.totalQuestions} question(s) remaining today.`;
+
+  btn.disabled = false;
+
+  btn.textContent =
+    info.attempted > 0
+      ? "Continue Test"
+      : "Start Today's Test";
+
+}
+
+
+    // ============================================================
+    // PROGRESS BAR
+    // ============================================================
+
+    prog.style.width =
+
+      info.totalQuestions > 0
+
+        ? (
+
+            info.attempted /
+
+            info.totalQuestions *
+
+            100
+
+          ) + "%"
+
+        : "0%";
+
+
+    // ============================================================
+    // STUDENT REPORT
+    // ============================================================
+
+    response = await fetch(API_URL, {
+
+      method: "POST",
+
+      body: JSON.stringify({
+
+        action: "getStudentReport",
+
+        rollNo: session.rollNo,
+
+        period: "all"
+
+      })
+
+    });
+
+
+    let report =
+
+      await response.json();
+
+
+    report =
+
+      report &&
+
+      typeof report === "object"
+
+        ? report
+
+        : {};
+
+
+    document
+
+      .getElementById(
+
+        "hAttempted"
+
+      )
+
+      .textContent =
+
+        Number(
+
+          report.totalAttempted || 0
+
+        );
+
+
+    document
+
+      .getElementById(
+
+        "hCorrect"
+
+      )
+
+      .textContent =
+
+        Number(
+
+          report.correct || 0
+
+        );
+
+
+    document
+
+      .getElementById(
+
+        "hMarks"
+
+      )
+
+      .textContent =
+
+        Number(
+
+          report.totalMarks || 0
+
+        );
+
+
+    document
+
+      .getElementById(
+
+        "hRank"
+
+      )
+
+      .textContent =
+
+        (
+
+          report.rank || "-"
+
+        ) +
+
+        "/" +
+
+        (
+
+          report.totalStudents || 0
+
+        );
+
+
+    document
+
+      .getElementById(
+
+        "hAccuracy"
+
+      )
+
+      .textContent =
+
+        Number(
+
+          report.totalAttempted || 0
+
+        ) > 0
+
+          ? Math.round(
+
+              Number(
+
+                report.correct || 0
+
+              ) /
+
+              Number(
+
+                report.totalAttempted
+
+              ) *
+
+              100
+
+            ) + "%"
+
+          : "0%";
+
+
+    // ============================================================
+    // STREAK
+    // ============================================================
+
+    response = await fetch(API_URL, {
+
+      method: "POST",
+
+      body: JSON.stringify({
+
+        action: "getStudentStreak",
+
+        rollNo: session.rollNo
+
+      })
+
+    });
+
+
+    let streak =
+
+      await response.json();
+
+
+    streak =
+
+      streak &&
+
+      typeof streak === "object"
+
+        ? streak
+
+        : {};
+
+
+    document
+
+      .getElementById(
+
+        "hStreak"
+
+      )
+
+      .textContent =
+
+        Number(
+
+          streak.current || 0
+
+        );
+
+
+    document
+
+      .getElementById(
+
+        "hBestStreak"
+
+      )
+
+      .textContent =
+
+        Number(
+
+          streak.best || 0
+
+        );
+
+
+    document
+
+      .getElementById(
+
+        "hActiveDays"
+
+      )
+
+      .textContent =
+
+        Number(
+
+          streak.totalActiveDays || 0
+
+        );
+
+
+  } catch (err) {
+
+
+    console.error(
+
+      "loadHome error:",
+
+      err
+
+    );
+
+
+    todayInfo = null;
+
+
+    const el =
+
+      document.getElementById(
+
+        "heroSub"
+
+      );
+
+
+    const btn =
+
+      document.getElementById(
+
+        "startBtn"
+
+      );
+
+
+    const prog =
+
+      document.getElementById(
+
+        "heroProgress"
+
+      );
+
+
+    el.textContent =
+
+      err.message ||
+
+      "Unable to load today's test.";
+
+
+    btn.disabled = true;
+
+
+    btn.textContent =
+
+      "Test Unavailable";
+
+
+    prog.style.width =
+
+      "0%";
+
+
+    toast(
+
+      err.message ||
+
+      "Unable to load dashboard",
+
+      "error"
+
+    );
+
+
+  }
+
+}
+
+// ---- Instructions & Test flow ----
+function openInstructions() {
+
+  // ============================================================
+  // VALIDATE TODAY INFO
+  // ============================================================
+
+  if (
+
+    !todayInfo ||
+
+    typeof todayInfo !== "object"
+
+  ) {
+
+    toast(
+
+      "Today's test information is not available.",
+
+      "error"
+
+    );
+
+
+    return;
+
+  }
+
+
+  // ============================================================
+  // VIOLATION CHECK
+  // ============================================================
+
+  if (
+
+    todayInfo.violated === true
+
+  ) {
+
+    toast(
+
+      "Today's test has already been completed due to a violation.",
+
+      "error"
+
+    );
+
+
+    return;
+
+  }
+
+
+  // ============================================================
+  // COMPLETED CHECK
+  // ============================================================
+
+  if (
+
+    todayInfo.completed === true
+
+  ) {
+
+    toast(
+
+      "You have already completed today's test.",
+
+      "error"
+
+    );
+
+
+    return;
+
+  }
+
+
+  // ============================================================
+  // NORMALIZE QUESTIONS
+  // ============================================================
+
+  const questions =
+
+    Array.isArray(
+
+      todayInfo.questions
+
+    )
+
+      ? todayInfo.questions
+
+      : [];
+
+
+  const remaining =
+
+    Number(
+
+      todayInfo.remaining || 0
+
+    );
+
+
+  // ============================================================
+  // NO QUESTIONS
+  // ============================================================
+
+  if (
+
+    remaining <= 0 ||
+
+    questions.length === 0
+
+  ) {
+
+    toast(
+
+      "No questions are available for today's test.",
+
+      "error"
+
+    );
+
+
+    return;
+
+  }
+
+
+  // ============================================================
+  // QUESTION COUNT
+  // ============================================================
+
+  document
+
+    .getElementById(
+
+      "instrCount"
+
+    )
+
+    .textContent =
+
+      remaining;
+
+
+  // ============================================================
+  // QUESTION-WISE TIME LIMITS
+  // ============================================================
+
+  document
+
+    .getElementById(
+
+      "qtimeList"
+
+    )
+
+    .innerHTML =
+
+      questions
+
+        .map(
+
+          (q, i) => {
+
+
+            const marks =
+
+              Number(
+
+                q.marks || 0
+
+              );
+
+
+            const timeLimit =
+
+              Number(
+
+                q.timeLimit || 30
+
+              );
+
+
+            return `
+
+              <div class="qtime-row">
+
+
+                <span class="q-num">
+
+                  Question ${i + 1}
+
+
+                  <span class="q-marks">
+
+                    (
+
+                    ${marks}
+
+                    mark${marks === 1 ? "" : "s"}
+
+                    )
+
+                  </span>
+
+
+                </span>
+
+
+                <span class="q-time">
+
+                  ${timeLimit}s
+
+                </span>
+
+
+              </div>
+
+            `;
+
+          }
+
+        )
+
+        .join("");
+
+
+  // ============================================================
+  // SHOW MODAL
+  // ============================================================
+
+  document
+
+    .getElementById(
+
+      "instrModal"
+
+    )
+
+    .classList
+
+    .add("show");
+
+
+}
+  
+  function closeInstructions(){ document.getElementById('instrModal').classList.remove('show'); }
+
+  let queue = [], qIndex = 0, timerInterval = null, questionStartTime = 0;
+
+  // ============================================================
+// TEST VIOLATION ENGINE
+// ============================================================
+
+let testActive = false;
+
+let violationTriggered = false;
+
+let violationArmed = false;
+
+let intentionalFullscreenExit = false;
+
+let focusGraceUntil = 0;
+
+
+const VIOLATION_LABELS = {
+
+  TAB_SWITCH:
+    "Tab switch / page hidden",
+
+  WINDOW_BLUR:
+    "Window or app focus lost / notification interaction",
+
+  MINIMIZE:
+    "Browser minimized",
+
+  FULLSCREEN_EXIT:
+    "Exited full-screen mode",
+
+  PAGE_EXIT:
+    "Test page exited",
+
+  COPY:
+    "Copy attempted",
+
+  CUT:
+    "Cut attempted",
+
+  PASTE:
+    "Paste attempted",
+
+  RIGHT_CLICK:
+    "Right-click attempted",
+
+  PRINT_SHORTCUT:
+    "Print shortcut attempted",
+
+  SAVE_SHORTCUT:
+    "Save-page shortcut attempted",
+
+  VIEW_SOURCE:
+    "View-source shortcut attempted",
+
+  DEVTOOLS_SHORTCUT:
+    "Developer tools shortcut attempted"
+
+};
+
+
+function isExamRunning() {
+
+  return (
+    testActive &&
+    violationArmed &&
+    !violationTriggered &&
+    document
+      .getElementById("testOverlay")
+      .classList
+      .contains("show")
+  );
+
+}
+
+async function beginTest() {
+
+  // ============================================================
+  // VALIDATE TEST DATA
+  // ============================================================
+
+  if (
+
+    !todayInfo ||
+
+    !Array.isArray(
+
+      todayInfo.questions
+
+    ) ||
+
+    todayInfo.questions.length === 0
+
+  ) {
+
+    closeInstructions();
+
+
+    toast(
+
+      "No questions are available for today's test.",
+
+      "error"
+
+    );
+
+
+    return;
+
+  }
+
+
+  if (
+
+    todayInfo.completed === true ||
+
+    todayInfo.violated === true
+
+  ) {
+
+    closeInstructions();
+
+
+    toast(
+
+      "Today's test has already been completed.",
+
+      "error"
+
+    );
+
+
+    await loadHome();
+
+
+    return;
+
+  }
+
+
+  // ============================================================
+  // PREPARE QUESTION QUEUE
+  // ============================================================
+
+  closeInstructions();
+
+
+  queue =
+
+    todayInfo.questions.slice();
+
+
+  qIndex = 0;
+
+
+  violationTriggered = false;
+
+
+  violationArmed = false;
+
+
+  intentionalFullscreenExit = false;
+
+
+  testActive = true;
+
+
+  locked = false;
+
+
+  document
+
+    .getElementById(
+
+      "testOverlay"
+
+    )
+
+    .classList
+
+    .add("show");
+
+
+  try {
+
+
+    const el =
+
+      document.documentElement;
+
+
+    // ============================================================
+    // ENTER FULLSCREEN
+    // ============================================================
+
+    if (
+
+      el.requestFullscreen
+
+    ) {
+
+
+      await el.requestFullscreen();
+
+
+    } else if (
+
+      el.webkitRequestFullscreen
+
+    ) {
+
+
+      await el.webkitRequestFullscreen();
+
+
+    } else {
+
+
+      throw new Error(
+
+        "Full-screen mode is not supported by this browser."
+
+      );
+
+
+    }
+
+
+    // ============================================================
+    // FULLSCREEN START GRACE PERIOD
+    // ============================================================
+
+    focusGraceUntil =
+
+      Date.now() + 1200;
+
+
+    setTimeout(
+
+      () => {
+
+
+        if (
+
+          testActive &&
+
+          !violationTriggered
+
+        ) {
+
+
+          violationArmed = true;
+
+
+        }
+
+
+      },
+
+      1200
+
+    );
+
+
+    // ============================================================
+    // SHOW FIRST QUESTION
+    // ============================================================
+
+    renderQuestion();
+
+
+  } catch (err) {
+
+
+    testActive = false;
+
+
+    violationArmed = false;
+
+
+    intentionalFullscreenExit = true;
+
+
+    locked = false;
+
+
+    queue = [];
+
+
+    qIndex = 0;
+
+
+    document
+
+      .getElementById(
+
+        "testOverlay"
+
+      )
+
+      .classList
+
+      .remove("show");
+
+
+    toast(
+
+      err.message ||
+
+      "Full-screen permission is required.",
+
+      "error"
+
+    );
+
+
+  }
+
+}
+
+  function endTest() {
+
+  testActive = false;
+
+  violationArmed = false;
+
+  intentionalFullscreenExit = true;
+
+
+  document
+    .getElementById("testOverlay")
+    .classList
+    .remove("show");
+
+
+  if (document.fullscreenElement) {
+
+    document
+      .exitFullscreen()
+      .catch(() => {});
+
+  }
+
+
+  clearInterval(timerInterval);
+
+
+  loadHome();
+
+
+  toast(
+    "Test session ended. Great job!"
+  );
+
+}
+
+async function triggerViolation(type) {
+
+  if (!isExamRunning()) {
+    return;
+  }
+
+
+  violationTriggered = true;
+
+  testActive = false;
+
+  violationArmed = false;
+
+  locked = true;
+
+
+  clearInterval(timerInterval);
+
+
+  const label =
+    VIOLATION_LABELS[type] || type;
+
+
+  // Immediately hide test
+  document
+    .getElementById("testOverlay")
+    .classList
+    .remove("show");
+
+
+  intentionalFullscreenExit = true;
+
+
+  if (document.fullscreenElement) {
+
+    try {
+
+      await document.exitFullscreen();
+
+    } catch (err) {}
+
+  }
+
+
+  let recorded = false;
+
+
+  try {
+
+    const response = await fetch(
+      API_URL,
+      {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          action: "recordViolation",
+
+          data: {
+
+            rollNo: session.rollNo,
+
+            violationType: type,
+
+            violationLabel: label,
+
+            qid:
+              queue[qIndex]
+                ? queue[qIndex].qid
+                : "",
+
+            questionIndex:
+              qIndex + 1,
+
+            detectedAt:
+              new Date().toISOString()
+
+          }
+
+        })
+
+      }
+    );
+
+
+    const res = await response.json();
+
+
+    recorded = res.success === true;
+
+
+  } catch (err) {
+
+    console.error(
+      "Violation recording error:",
+      err
+    );
+
+  }
+
+
+  document
+    .getElementById("violationTypeLabel")
+    .textContent = label;
+
+
+  document
+    .getElementById("violationMessage")
+    .textContent = recorded
+
+      ? "A prohibited test action was detected. Your test has been terminated immediately."
+
+      : "A prohibited test action was detected. Your test has been terminated.";
+
+
+  document
+    .getElementById("violationModal")
+    .classList
+    .add("show");
+
+}
+
+
+async function closeViolationAndReturn() {
+
+
+  document
+    .getElementById("violationModal")
+    .classList
+    .remove("show");
+
+
+  clearInterval(timerInterval);
+
+
+  testActive = false;
+
+  violationArmed = false;
+
+  violationTriggered = true;
+
+  intentionalFullscreenExit = true;
+
+  locked = true;
+
+
+  queue = [];
+
+  qIndex = 0;
+
+
+  document
+    .getElementById("testOverlay")
+    .classList
+    .remove("show");
+
+
+  await loadHome();
+
+
+  const btn =
+    document
+      .getElementById("startBtn");
+
+
+  if (
+    todayInfo &&
+    todayInfo.violated
+  ) {
+
+
+    btn.disabled = true;
+
+
+    btn.textContent =
+      "✓ Completed";
+
+
+    document
+      .getElementById("heroSub")
+      .textContent =
+
+      "Today's test is completed. " +
+
+      "The test was terminated due to: " +
+
+      todayInfo.violationLabel +
+
+      ". Previously submitted answers and marks have been retained.";
+
+
+  }
+
+}
+
+// ============================================================
+// TAB SWITCH / PAGE HIDDEN
+// ============================================================
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if (
+      isExamRunning() &&
+      document.hidden
+    ) {
+
+      triggerViolation(
+        "TAB_SWITCH"
+      );
+
+    }
+
+  },
+  true
+);
+
+
+// ============================================================
+// FULLSCREEN EXIT
+// ============================================================
+
+document.addEventListener(
+  "fullscreenchange",
+  () => {
+
+    if (
+      isExamRunning() &&
+      !intentionalFullscreenExit &&
+      !document.fullscreenElement
+    ) {
+
+      triggerViolation(
+        "FULLSCREEN_EXIT"
+      );
+
+    }
+
+  },
+  true
+);
+
+
+// ============================================================
+// WINDOW / APP SWITCH / NOTIFICATION INTERACTION
+// ============================================================
+
+window.addEventListener(
+  "blur",
+  () => {
+
+    if (
+      !isExamRunning() ||
+      Date.now() < focusGraceUntil
+    ) {
+
+      return;
+
+    }
+
+
+    setTimeout(() => {
+
+      if (!isExamRunning()) {
+        return;
+      }
+
+
+      if (document.hidden) {
+
+        triggerViolation(
+          "TAB_SWITCH"
+        );
+
+      } else if (!document.hasFocus()) {
+
+        triggerViolation(
+          "WINDOW_BLUR"
+        );
+
+      }
+
+    }, 120);
+
+  },
+  true
+);
+
+
+// ============================================================
+// COPY / CUT / PASTE
+// ============================================================
+
+[
+  "copy",
+  "cut",
+  "paste"
+].forEach(eventName => {
+
+  document.addEventListener(
+    eventName,
+    event => {
+
+      if (!isExamRunning()) {
+        return;
+      }
+
+
+      event.preventDefault();
+
+
+      triggerViolation(
+        eventName.toUpperCase()
+      );
+
+    },
+    true
+  );
+
+});
+
+
+// ============================================================
+// RIGHT CLICK
+// ============================================================
+
+document.addEventListener(
+  "contextmenu",
+  event => {
+
+    if (!isExamRunning()) {
+      return;
+    }
+
+
+    event.preventDefault();
+
+
+    triggerViolation(
+      "RIGHT_CLICK"
+    );
+
+  },
+  true
+);
+
+
+// ============================================================
+// KEYBOARD RESTRICTIONS
+// ============================================================
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (!isExamRunning()) {
+      return;
+    }
+
+
+    const key =
+      String(event.key || "")
+        .toLowerCase();
+
+
+    const modifier =
+      event.ctrlKey ||
+      event.metaKey;
+
+
+    // F12 / Developer Tools
+    if (
+      event.key === "F12" ||
+
+      (
+        modifier &&
+        event.shiftKey &&
+        ["i", "j", "c"].includes(key)
+      )
+    ) {
+
+      event.preventDefault();
+
+      triggerViolation(
+        "DEVTOOLS_SHORTCUT"
+      );
+
+      return;
+
+    }
+
+
+    // Print
+    if (
+      modifier &&
+      key === "p"
+    ) {
+
+      event.preventDefault();
+
+      triggerViolation(
+        "PRINT_SHORTCUT"
+      );
+
+      return;
+
+    }
+
+
+    // Save page
+    if (
+      modifier &&
+      key === "s"
+    ) {
+
+      event.preventDefault();
+
+      triggerViolation(
+        "SAVE_SHORTCUT"
+      );
+
+      return;
+
+    }
+
+
+    // View source
+    if (
+      modifier &&
+      key === "u"
+    ) {
+
+      event.preventDefault();
+
+      triggerViolation(
+        "VIEW_SOURCE"
+      );
+
+    }
+
+  },
+  true
+);
+
+  // ---- Equations & tables: shared renderer ----
+  function isTableRow(l){ return !!l && l.trim().startsWith('|') && l.trim().endsWith('|'); }
+  function isSeparatorRow(l){ return /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test((l||'').trim()); }
+  function splitRow(l){ return l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()); }
+  function renderContent(text){
+    if(!text) return '';
+    const lines = String(text).split(/\r?\n/);
+    let html = ''; let i = 0;
+    while(i < lines.length){
+      const line = lines[i];
+      if(isTableRow(line) && i+1 < lines.length && isSeparatorRow(lines[i+1])){
+        const header = splitRow(line);
+        let k = i+2, bodyRows = [];
+        while(k < lines.length && isTableRow(lines[k])){ bodyRows.push(splitRow(lines[k])); k++; }
+        html += '<table class="rich-table"><thead><tr>' + header.map(h=>'<th>'+h+'</th>').join('') + '</tr></thead><tbody>';
+        bodyRows.forEach(r=>{ html += '<tr>' + r.map(c=>'<td>'+c+'</td>').join('') + '</tr>'; });
+        html += '</tbody></table>';
+        i = k;
+      } else {
+        html += line + '<br>';
+        i++;
+      }
+    }
+    return html;
+  }
+  function typesetMath(el){ if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([el]).catch(()=>{}); } }
+
+  function renderQuestion(){
+    if(qIndex >= queue.length){ endTest(); return; }
+    const q = queue[qIndex];
+    document.getElementById('qProgressLabel').textContent = `Question ${qIndex+1} of ${queue.length}`;
+    const card = document.getElementById('qCard');
+    card.innerHTML = `
+      ${q.imageLink ? `<img src="${q.imageLink}" alt="question image">` : ''}
+      <div class="q-text">${renderContent(q.question)}</div>
+      <div class="opt" data-opt="A" tabindex="0" role="button" onclick="selectOption('A')">${renderContent(q.optionA)}</div>
+      ${q.optionB ? `<div class="opt" data-opt="B" tabindex="0" role="button" onclick="selectOption('B')">${renderContent(q.optionB)}</div>` : ''}
+      ${q.optionC ? `<div class="opt" data-opt="C" tabindex="0" role="button" onclick="selectOption('C')">${renderContent(q.optionC)}</div>` : ''}
+      ${q.optionD ? `<div class="opt" data-opt="D" tabindex="0" role="button" onclick="selectOption('D')">${renderContent(q.optionD)}</div>` : ''}
+    `;
+    typesetMath(card);
+    startTimer(q.timeLimit || 30);
+    questionStartTime = Date.now();
+  }
+
+  function startTimer(seconds){
+    clearInterval(timerInterval);
+    let remaining = seconds;
+    const ring = document.getElementById('timerRing');
+    ring.textContent = remaining; ring.classList.remove('warn');
+    timerInterval = setInterval(()=>{
+      remaining--;
+      ring.textContent = remaining;
+      if(remaining <= 5) ring.classList.add('warn');
+      if(remaining <= 0){
+        clearInterval(timerInterval);
+        selectOption(null); // timeout - unattempted
+      }
+    }, 1000);
+  }
+
+  let locked = false;
+  async function selectOption(opt) {
+
+  if (
+    locked ||
+    violationTriggered ||
+    !testActive
+  ) {
+
+    return;
+
+  }
+
+
+  locked = true;
+
+
+  clearInterval(timerInterval);
+
+
+  const q =
+    queue[qIndex];
+
+
+  if (!q) {
+
+    locked = false;
+
+    return;
+
+  }
+
+
+  const timeTaken =
+
+    Math.round(
+
+      (
+        Date.now() -
+        questionStartTime
+      ) / 1000
+
+    );
+
+
+  // Only visually show the selected option.
+  // No correct / wrong indication.
+
+  document
+    .querySelectorAll(".opt")
+    .forEach(btn => {
+
+      if (
+        opt &&
+        btn.dataset.opt === opt
+      ) {
+
+        btn
+          .classList
+          .add("selected");
+
+      }
+
+
+      btn.onclick = null;
+
+    });
+
+
+  try {
+
+
+    const response =
+      await fetch(
+
+        API_URL,
+
+        {
+
+          method: "POST",
+
+          body: JSON.stringify({
+
+            action:
+              "submitAnswer",
+
+            data: {
+
+              rollNo:
+                session.rollNo,
+
+              qid:
+                q.qid,
+
+              selected:
+                opt,
+
+              timeTaken:
+                timeTaken
+
+            }
+
+          })
+
+        }
+
+      );
+
+
+    const res =
+      await response.json();
+
+
+    // Violation may have happened while
+    // the answer request was processing.
+
+    if (violationTriggered) {
+
+      return;
+
+    }
+
+
+    if (!res.success) {
+
+
+      if (
+        String(res.message || "")
+          .toLowerCase()
+          .includes("violation") ||
+
+        String(res.message || "")
+          .toLowerCase()
+          .includes("terminated")
+      ) {
+
+
+        locked = true;
+
+        testActive = false;
+
+        violationArmed = false;
+
+
+        clearInterval(timerInterval);
+
+
+        document
+          .getElementById("testOverlay")
+          .classList
+          .remove("show");
+
+
+        await loadHome();
+
+
+        return;
+
+      }
+
+
+      throw new Error(
+
+        res.message ||
+        "Unable to save answer"
+
+      );
+
+    }
+
+
+    // Do NOT reveal:
+    // - correct answer
+    // - wrong answer
+    // - green indication
+    // - red indication
+
+
+    setTimeout(() => {
+
+
+      if (
+        violationTriggered ||
+        !testActive
+      ) {
+
+        return;
+
+      }
+
+
+      locked = false;
+
+
+      qIndex++;
+
+
+      renderQuestion();
+
+
+    }, 500);
+
+
+  } catch (err) {
+
+
+    if (
+      violationTriggered
+    ) {
+
+      return;
+
+    }
+
+
+    locked = false;
+
+
+    toast(
+
+      err.message,
+
+      "error"
+
+    );
+
+
+  }
+
+}
+
+  // ---- Leaderboard ----
+  let lbPeriod = 'day';
+  function setLbPeriod(p){
+    lbPeriod = p;
+    document.querySelectorAll('#lbTabs .t').forEach(t=>t.classList.toggle('active', t.dataset.p===p));
+    renderLeaderboard();
+  }
+  async function renderLeaderboard() {
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "getLeaderboard",
+                period: lbPeriod,
+                dept: session.dept
+            })
+        });
+
+        const list = await response.json();
+
+        document.getElementById("lbBody").innerHTML =
+            list.length
+                ? list.map(s => {
+
+                    const isMe = s.rollNo === session.rollNo;
+
+                    return `
+                    <tr ${isMe ? 'style="font-weight:800;"' : ''}>
+                        <td>${rankBadge(s.rank, isMe)}</td>
+                        <td>${s.rollNo}</td>
+                        <td>${s.name}</td>
+                        <td>${s.marks}</td>
+                        <td>${s.correct}/${s.attempted}</td>
+                    </tr>`;
+                }).join("")
+                : `<tr>
+                    <td colspan="5" class="muted">
+                        No data available
+                    </td>
+                   </tr>`;
+
+    } catch (err) {
+
+        toast(err.message, "error");
+
+    }
+
+}
+
+  // ---- Progress / history ----
+async function renderHistory() {
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "getStudentReport",
+        rollNo: session.rollNo,
+        period: "all"
+      })
+    });
+
+    const res = await response.json();
+
+    document.getElementById("historyBody").innerHTML =
+
+      res.history && res.history.length
+
+        ? res.history
+            .slice()
+            .reverse()
+            .map(h => `
+
+              <tr>
+
+                <td>
+                  ${h.date}
+                </td>
+
+                <td>
+                  ${h.selected || "-"}
+                </td>
+
+                <td>
+
+                  ${
+                    h.isCorrect === true ||
+                    h.isCorrect === "TRUE"
+
+                      ? "✅ Correct"
+
+                      : (
+                          h.selected
+
+                            ? "❌ Wrong"
+
+                            : "⏱ Unattempted"
+                        )
+                  }
+
+                </td>
+
+                <td>
+                  ${h.marks}
+                </td>
+
+                <td>
+                  ${h.timeTaken}s
+                </td>
+
+              </tr>
+
+            `)
+            .join("")
+
+        : `
+
+          <tr>
+
+            <td
+              colspan="5"
+              class="muted"
+            >
+
+              No history yet
+
+            </td>
+
+          </tr>
+
+        `;
+
+  } catch (err) {
+
+    toast(
+      err.message,
+      "error"
+    );
+
+  }
+
+}
+ 
+// ---- Answer Key ----
+async function renderAnswerKey() {
+
+  const container =
+    document.getElementById(
+      "answerKeyList"
+    );
+
+
+  container.innerHTML =
+
+    '<p class="muted">Loading review...</p>';
+
+
+  try {
+
+
+    const response =
+
+      await fetch(
+        API_URL,
+        {
+
+          method: "POST",
+
+          body: JSON.stringify({
+
+            action:
+              "getAnswerKey",
+
+            rollNo:
+              session.rollNo,
+
+            period:
+              "all"
+
+          })
+
+        }
+      );
+
+
+    const list =
+
+      await response.json();
+
+
+    if (
+      !Array.isArray(list) ||
+      list.length === 0
+    ) {
+
+      container.innerHTML = `
+
+        <p class="muted">
+
+          No submitted answers
+          available for review.
+
+        </p>
+
+      `;
+
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+
+      list.map(item => {
+
+
+        const opts = [
+
+          ["A", item.optionA],
+
+          ["B", item.optionB],
+
+          ["C", item.optionC],
+
+          ["D", item.optionD]
+
+        ].filter(
+          option => option[1]
+        );
+
+
+        let optsHtml = "";
+
+
+        if (item.revealed) {
+
+
+          optsHtml =
+
+            opts.map(
+              ([letter, text]) => {
+
+
+                let cls =
+                  "ak-opt";
+
+
+                if (
+                  letter ===
+                  item.correctAnswer
+                ) {
+
+                  cls +=
+                    " correct";
+
+                }
+
+
+                if (
+                  letter ===
+                  item.selected
+                ) {
+
+                  cls +=
+                    " selected-only";
+
+                }
+
+
+                return `
+
+                  <div
+                    class="${cls}"
+                  >
+
+                    ${letter}.
+
+                    ${renderContent(text)}
+
+
+                    ${
+                      letter ===
+                      item.selected
+
+                        ? `
+                          <span
+                            class="muted"
+                          >
+                            (your answer)
+                          </span>
+                        `
+
+                        : ""
+                    }
+
+                  </div>
+
+                `;
+
+              }
+            )
+            .join("");
+
+
+        } else {
+
+
+          optsHtml =
+
+            opts.map(
+              ([letter, text]) => {
+
+
+                const cls =
+
+                  "ak-opt" +
+
+                  (
+                    letter ===
+                    item.selected
+
+                      ? " selected-only"
+
+                      : ""
+                  );
+
+
+                return `
+
+                  <div
+                    class="${cls}"
+                  >
+
+                    ${letter}.
+
+                    ${renderContent(text)}
+
+
+                    ${
+                      letter ===
+                      item.selected
+
+                        ? `
+                          <span
+                            class="muted"
+                          >
+                            (your answer)
+                          </span>
+                        `
+
+                        : ""
+                    }
+
+                  </div>
+
+                `;
+
+              }
+            )
+            .join("");
+
+
+          optsHtml += `
+
+            <div
+              class="ak-locked"
+              style="margin-top:8px;"
+            >
+
+              🔒 Review answers are
+              currently hidden by admin.
+
+            </div>
+
+          `;
+
+        }
+
+
+        return `
+
+          <div class="ak-item">
+
+
+            <div class="ak-item-head">
+
+              <span class="ak-date">
+
+                ${item.date}
+
+              </span>
+
+
+              <span class="muted">
+
+                ${
+                  item.revealed
+
+                    ? "📖 Answer review available"
+
+                    : "🔒 Review hidden"
+                }
+
+              </span>
+
+            </div>
+
+
+            <div class="ak-question">
+
+              ${renderContent(
+                item.question
+              )}
+
+            </div>
+
+
+            ${
+
+              item.imageLink
+
+                ? `
+
+                  <img
+
+                    src="${item.imageLink}"
+
+                    style="
+                      max-width:100%;
+                      border-radius:10px;
+                      margin:8px 0 12px;
+                    "
+
+                  >
+
+                `
+
+                : ""
+
+            }
+
+
+            ${optsHtml}
+
+
+          </div>
+
+        `;
+
+      })
+      .join("");
+
+
+    if (
+      window.MathJax &&
+      MathJax.typesetPromise
+    ) {
+
+      MathJax.typesetPromise([
+        container
+      ]);
+
+    }
+
+
+  } catch (err) {
+
+
+    container.innerHTML = `
+
+      <p class="muted">
+
+        Unable to load
+        answer review.
+
+      </p>
+
+    `;
+
+
+    toast(
+      err.message,
+      "error"
+    );
+
+  }
+
+}
+
+  // ---- Activity calendar ----
+  const now0 = new Date();
+  let calYear = now0.getFullYear(), calMonth = now0.getMonth()+1;
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function shiftMonth(delta){
+    calMonth += delta;
+    if(calMonth < 1){ calMonth = 12; calYear--; }
+    if(calMonth > 12){ calMonth = 1; calYear++; }
+    renderCalendar();
+  }
+
+  async function renderCalendar() {
+
+    document.getElementById("calLabel").textContent =
+        MONTH_NAMES[calMonth - 1] + " " + calYear;
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "getMonthlyActivity",
+                rollNo: session.rollNo,
+                year: calYear,
+                month: calMonth
+            })
+        });
+
+        const res = await response.json();
+
+        const grid = document.getElementById("calGrid");
+
+        const firstDow = new Date(calYear, calMonth - 1, 1).getDay();
+
+        const todayStr = new Date().toISOString().slice(0, 10);
+
+        let html = "";
+
+        // Week Header
+        ["S","M","T","W","T","F","S"].forEach(day => {
+            html += `
+                <div class="cal-cell pad"
+                     style="color:var(--muted);font-weight:800;">
+                    ${day}
+                </div>`;
+        });
+
+        // Empty cells
+        for (let i = 0; i < firstDow; i++) {
+            html += `<div class="cal-cell pad"></div>`;
+        }
+
+        // Days
+        res.days.forEach(d => {
+
+            let cls = "cal-cell";
+
+            if (d.attempted > 0) {
+
+                cls += (d.correct === d.attempted)
+                    ? " allcorrect"
+                    : " attempted";
+            }
+
+            if (d.date === todayStr)
+                cls += " today";
+
+            const title = d.attempted
+                ? `${d.attempted} attempted, ${d.correct} correct, ${d.marks} marks`
+                : "No attempt";
+
+            html += `
+                <div class="${cls}" title="${title}">
+                    ${d.day}
+                </div>
+            `;
+        });
+
+        grid.innerHTML = html;
+
+    } catch (err) {
+
+        document.getElementById("calGrid").innerHTML =
+            `<div class="muted">${err.message}</div>`;
+
+        toast(err.message, "error");
+
+    }
+
+}
+
+  // ---- Password ----
+  function togglePw(id, btn){
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+  }
+  function checkStrength(){
+    const val = document.getElementById('newPass').value;
+    const fill = document.getElementById('strengthFill');
+    let score = 0;
+    if(val.length >= 4) score++;
+    if(val.length >= 8) score++;
+    if(/[0-9]/.test(val) && /[a-zA-Z]/.test(val)) score++;
+    if(/[^a-zA-Z0-9]/.test(val)) score++;
+    const pct = [0,25,50,75,100][score];
+    const colors = ['#DC2626','#DC2626','#F59E0B','#F59E0B','#16A34A'];
+    fill.style.width = pct+'%';
+    fill.style.background = colors[score];
+  }
+  function checkMatch(){
+    const newP = document.getElementById('newPass').value, conf = document.getElementById('confirmPass').value;
+    const msg = document.getElementById('pwMatchMsg');
+    if(!conf){ msg.textContent=''; msg.className='pw-match'; return; }
+    if(newP === conf){ msg.textContent='✓ Passwords match'; msg.className='pw-match ok'; }
+    else { msg.textContent='✗ Passwords do not match'; msg.className='pw-match bad'; }
+  }
+  async function updatePassword() {
+
+    const oldP = document.getElementById("oldPass").value;
+    const newP = document.getElementById("newPass").value;
+    const conf = document.getElementById("confirmPass").value;
+
+    if (!oldP || !newP || !conf) {
+        toast("Fill all fields", "error");
+        return;
+    }
+
+    if (newP.length < 4) {
+        toast("New password too short (minimum 4 characters)", "error");
+        return;
+    }
+
+    if (newP !== conf) {
+        toast("New password and confirmation do not match", "error");
+        return;
+    }
+
+    if (newP === oldP) {
+        toast("New password must be different from current password", "error");
+        return;
+    }
+
+    const btn = document.getElementById("pwSubmitBtn");
+    btn.disabled = true;
+    btn.textContent = "Updating...";
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "changeStudentPassword",
+                rollNo: session.rollNo,
+                oldPassword: oldP,
+                newPassword: newP
+            })
+        });
+
+        const res = await response.json();
+
+        btn.disabled = false;
+        btn.textContent = "Update Password";
+
+        if (res.success) {
+
+            toast("Password updated successfully", "success");
+
+            document.getElementById("oldPass").value = "";
+            document.getElementById("newPass").value = "";
+            document.getElementById("confirmPass").value = "";
+
+            document.getElementById("strengthFill").style.width = "0%";
+            document.getElementById("pwMatchMsg").textContent = "";
+
+        } else {
+
+            toast(res.message || "Password update failed", "error");
+
+        }
+
+    } catch (err) {
+
+        btn.disabled = false;
+        btn.textContent = "Update Password";
+
+        toast(err.message, "error");
+
+    }
+
+}
+
+  loadHome();
+</script>
+</body>
+</html>
